@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORM_Lib", "ORM_Lib\ORM_Lib.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORM_Tests", "ORM_Tests\ORM_Tests.csproj", "{E0DF4B11-D3E4-4B1C-9390-6AB95688CB6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORM_Example", "ORM_Example\ORM_Example.csproj", "{3DFD535D-0DF7-4DC1-8093-672A2943C153}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{E0DF4B11-D3E4-4B1C-9390-6AB95688CB6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0DF4B11-D3E4-4B1C-9390-6AB95688CB6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0DF4B11-D3E4-4B1C-9390-6AB95688CB6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DFD535D-0DF7-4DC1-8093-672A2943C153}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DFD535D-0DF7-4DC1-8093-672A2943C153}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DFD535D-0DF7-4DC1-8093-672A2943C153}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DFD535D-0DF7-4DC1-8093-672A2943C153}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
