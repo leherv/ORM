@@ -12,7 +12,7 @@ namespace ORM_Example
         {
             var dbContext = new ExampleDbContext();
             var dbSet = dbContext.Persons;
-            var iq = dbSet.Where(p => p.Name.Equals("Frank"));
+            var iq = dbContext.Persons.Where(p => p.Name.Equals("Frank"));
             var iqs = iq.ToList();
         }
     }
