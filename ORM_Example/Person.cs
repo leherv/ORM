@@ -1,14 +1,14 @@
 using System;
-using ORM_Example;
 
-namespace ORM
+namespace ORM_Example
 {
     public class Person
     {
-        public string Name { get; }
-        public string FirstName { get; } 
-        public Gender Gender { get; }
-        public DateTime BDay { get; }
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string FirstName { get; set; } 
+        public Gender Gender { get; set; }
+        public DateTime BDay { get; set; }
 
         public Person(string name, string firstName, Gender gender, DateTime bDay)
         {

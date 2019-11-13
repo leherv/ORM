@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
-using ORM_Example;
+using ORM_Lib.Constraints_Attributes;
 
-namespace ORM
+namespace ORM_Example
 {
+    [TableName("Custom_name")]
     public class Teacher : Person
     {
-        public int Salary { get; }
-        public List<Course> Courses { get; }
+        [ColumnName("Custom_name")]
+        public int Salary { get; set; }
+        public List<Course> Courses { get; set; }
         
         public Teacher(string name, string firstName, Gender gender, DateTime bDay, int salary, List<Course> courses) : base(name, firstName, gender, bDay)
         {
