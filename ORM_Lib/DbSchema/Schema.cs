@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ORM_Lib
+namespace ORM_Lib.DbSchema
 {
     public class Schema
     {

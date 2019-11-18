@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ORM_Lib
+namespace ORM_Lib.DbSchema
 {
     public class Entity
     {

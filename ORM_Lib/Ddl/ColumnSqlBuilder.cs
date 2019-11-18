@@ -1,4 +1,6 @@
-namespace ORM_Lib
+using ORM_Lib.DbSchema;
+
+namespace ORM_Lib.Ddl
 {
     public static class ColumnSqlBuilder
     {

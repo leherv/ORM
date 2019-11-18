@@ -42,9 +42,6 @@
       </e>
       <e p="ORM_lib" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
-        <e p="Column.cs" t="Include" />
-        <e p="ColumnBuilder.cs" t="Include" />
-        <e p="ColumnSqlBuilder.cs" t="Include" />
         <e p="Constraints_Attributes" t="Include">
           <e p="ColumnName.cs" t="Include" />
           <e p="Constraint.cs" t="Include" />
@@ -59,12 +56,21 @@
           <e p="Unique.cs" t="Include" />
         </e>
         <e p="DbContext.cs" t="Include" />
-        <e p="DbQueryProvider.cs" t="Include" />
+        <e p="DbSchema" t="Include">
+          <e p="Column.cs" t="Include" />
+          <e p="ColumnBuilder.cs" t="Include" />
+          <e p="Entity.cs" t="Include" />
+          <e p="EntityBuilder.cs" t="Include" />
+          <e p="Schema.cs" t="Include" />
+          <e p="SchemaBuilder.cs" t="Include" />
+        </e>
         <e p="DbSet.cs" t="Include" />
         <e p="DbSetBuilder.cs" t="Include" />
-        <e p="Entity.cs" t="Include" />
-        <e p="EntityBuilder.cs" t="Include" />
-        <e p="EntitySqlBuilder.cs" t="Include" />
+        <e p="DDL" t="Include">
+          <e p="ColumnSqlBuilder.cs" t="Include" />
+          <e p="EntitySqlBuilder.cs" t="Include" />
+          <e p="SchemaSQLBuilder.cs" t="Include" />
+        </e>
         <e p="extensions" t="Include">
           <e p="NonStringEnumerableHelper.cs" t="Include" />
         </e>
@@ -76,12 +82,12 @@
             </e>
           </e>
         </e>
-        <e p="ObjectReader.cs" t="Include" />
         <e p="ORM_lib.csproj" t="IncludeRecursive" />
-        <e p="QueryTranslator.cs" t="Include" />
-        <e p="Schema.cs" t="Include" />
-        <e p="SchemaBuilder.cs" t="Include" />
-        <e p="SchemaSQLBuilder.cs" t="Include" />
+        <e p="Query" t="Include">
+          <e p="DbQueryProvider.cs" t="Include" />
+          <e p="ObjectReader.cs" t="Include" />
+          <e p="QueryTranslator.cs" t="Include" />
+        </e>
         <e p="TypeMapper.cs" t="Include" />
       </e>
       <e p="ORM_tests" t="IncludeRecursive">

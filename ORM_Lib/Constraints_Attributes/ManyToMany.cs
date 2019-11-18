@@ -1,4 +1,5 @@
 using System;
+using ORM_Lib.DbSchema;
 
 namespace ORM_Lib.Constraints_Attributes
 {

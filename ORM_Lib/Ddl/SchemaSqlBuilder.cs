@@ -1,11 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.DbSchema;
 
-namespace ORM_Lib
+namespace ORM_Lib.Ddl
 {
     public static class SchemaSqlBuilder
     {

@@ -1,12 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ORM_Lib.Constraints_Attributes;
 using ORM_Lib.Extensions;
 
-namespace ORM_Lib
+namespace ORM_Lib.DbSchema
 {
     public static class ColumnBuilder
     {

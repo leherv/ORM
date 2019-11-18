@@ -1,8 +1,9 @@
 using System.Linq;
 using System.Text;
 using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.DbSchema;
 
-namespace ORM_Lib
+namespace ORM_Lib.Ddl
 {
     public static class EntitySqlBuilder
     {

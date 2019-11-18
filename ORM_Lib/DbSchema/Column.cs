@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using ORM_Lib.Constraints_Attributes;
 
-namespace ORM_Lib
+namespace ORM_Lib.DbSchema
 {
     public class Column
     {

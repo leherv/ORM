@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using ORM_Lib;
+using ORM_Lib.Ddl;
 
 namespace ORM_Example
 {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ORM_Lib.DbSchema;
 
 namespace ORM_Lib
 {
@@ -11,8 +12,8 @@ namespace ORM_Lib
 
         public DbContext()
         {
-            var propertyInfos = PropertyInfos();
-            var types = Types(propertyInfos);
+            var propertyInfos = PropertyInfos().ToList();
+            var types = Types(propertyInfos).ToList();
             BuildDbSets(propertyInfos, types);
             Schema = BuildSchema(types);
         }
