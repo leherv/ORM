@@ -5,3 +5,5 @@ All fields have to be public properties with get/set
 
 if the Property is a primary key by name or by attribute and the class is a subclass of another entity then 
 the primary key automatically is a foreign key too
+
+OneToMany and ManyToMany have to be bidirectional at the moment
