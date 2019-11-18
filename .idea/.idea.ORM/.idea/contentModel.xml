@@ -20,6 +20,10 @@
         <e p="bin" t="ExcludeRecursive" />
         <e p="Class.cs" t="Include" />
         <e p="Course.cs" t="Include" />
+        <e p="db" t="Include">
+          <e p="Dockerfile" t="Include" />
+        </e>
+        <e p="docker-compose.yml" t="Include" />
         <e p="ER.png" t="Include" />
         <e p="ExampleDbContext.cs" t="Include" />
         <e p="Gender.cs" t="Include" />
@@ -40,12 +44,14 @@
         <e p="bin" t="ExcludeRecursive" />
         <e p="Column.cs" t="Include" />
         <e p="ColumnBuilder.cs" t="Include" />
+        <e p="ColumnSqlBuilder.cs" t="Include" />
         <e p="Constraints_Attributes" t="Include">
           <e p="ColumnName.cs" t="Include" />
           <e p="Constraint.cs" t="Include" />
-          <e p="ForeignKey.cs" t="Include" />
+          <e p="Fk.cs" t="Include" />
           <e p="Ignore.cs" t="Include" />
           <e p="ManyToMany.cs" t="Include" />
+          <e p="ManyToManyComparer.cs" t="Include" />
           <e p="ManyToOne.cs" t="Include" />
           <e p="OneToMany.cs" t="Include" />
           <e p="PK.cs" t="Include" />
@@ -58,6 +64,7 @@
         <e p="DbSetBuilder.cs" t="Include" />
         <e p="Entity.cs" t="Include" />
         <e p="EntityBuilder.cs" t="Include" />
+        <e p="EntitySqlBuilder.cs" t="Include" />
         <e p="extensions" t="Include">
           <e p="NonStringEnumerableHelper.cs" t="Include" />
         </e>
@@ -74,6 +81,7 @@
         <e p="QueryTranslator.cs" t="Include" />
         <e p="Schema.cs" t="Include" />
         <e p="SchemaBuilder.cs" t="Include" />
+        <e p="SchemaSQLBuilder.cs" t="Include" />
         <e p="TypeMapper.cs" t="Include" />
       </e>
       <e p="ORM_tests" t="IncludeRecursive">

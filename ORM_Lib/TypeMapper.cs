@@ -42,5 +42,7 @@ namespace ORM_Lib
         {
             return GetDbType(type.Name);
         }
+
+        public static string GetForeignKeyType() => "integer";
     }
 }

@@ -7,17 +7,20 @@ using ORM_Lib.Extensions;
 
 namespace ORM_Lib
 {
-    public class EntityBuilder
+    public static class EntityBuilder
     {
-        public static Entity BuildEntity(Type tableType, IEnumerable<PropertyInfo> propertyInfos)
+        public static Entity BuildEntity(Type tableType, IEnumerable<PropertyInfo> propertyInfos, List<Type> tableTypes)
         {
             var propInfos = propertyInfos.ToList();
             if (!ContainsPk(propInfos)) throw new InvalidOperationException("Entity has no primary key");
-            var columns = propInfos.Select(ColumnBuilder.BuildColumn);
-            
+            var columns = propInfos.Select(propInfo => ColumnBuilder.BuildColumn(propInfo, tableType, tableTypes)).ToList();
+            // TODO: maybe return tuple of (PkColumn, Columns) in columnBuilder instead
+            var pkColumn = columns.First(c => c.Constraints.Any(cons => typeof(Pk) == cons.GetType()));
             return new Entity(
                 BuildEntityName(tableType),
-                columns.ToList()
+                columns,
+                tableType,
+                pkColumn
             );
         }
 

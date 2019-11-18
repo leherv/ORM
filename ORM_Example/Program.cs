@@ -1,7 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using ORM_Lib;
-using ORM_Tests;
 
 namespace ORM_Example
 {
@@ -11,6 +11,13 @@ namespace ORM_Example
         {
             var dbContext = new ExampleDbContext();
             var schema = dbContext.Schema;
+
+            var ddl = SchemaSqlBuilder.BuildDdl(schema);
+            using (var file = new StreamWriter("test.sql"))
+            {
+                file.WriteLine(ddl);
+            }
+           
         }
     }
 }

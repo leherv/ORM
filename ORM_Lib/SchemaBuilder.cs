@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +7,7 @@ using ORM_Lib.Extensions;
 
 namespace ORM_Lib
 {
-    public class SchemaBuilder
+    public static class SchemaBuilder
     {
         public static Schema BuildSchema(IEnumerable<Type> types)
         {
@@ -22,13 +21,62 @@ namespace ORM_Lib
                 if (!ValidColumnTypes(returnTypes, tableTypes))
                     throw new InvalidOperationException("Type is no DBSet or not supported by the Database");
 
-                entities.Add(EntityBuilder.BuildEntity(type, propertyInfos));
+                // we seem to have to pass tableTypes 
+                entities.Add(EntityBuilder.BuildEntity(type, propertyInfos, tableTypes));
             }
 
-            FinishSchema();
-
+            foreach (var entity in entities)
+            {
+                foreach (var column in entity.Columns)
+                {
+                    foreach (var constraint in column.Constraints)
+                    {
+                        if (typeof(Fk) == constraint.GetType())
+                        {
+                            var fk = constraint as Fk;
+                            var toType = fk.ToPocoType;
+                            var toEntity = entities.First(e => e.PocoType == toType);
+                            fk.ToEntity = toEntity;
+                            fk.To = toEntity.PkColumn;
+                        }
+                        else if (typeof(OneToMany) == constraint.GetType())
+                        {
+                            var oneToMany = constraint as OneToMany;
+                            var mappingEntity = entities.First(e => e.PocoType == oneToMany.MappedByPocoType);
+                            oneToMany.MappedByEntity = mappingEntity;
+//                            get the Column with the ManyToOne annotation - if we dont find exactly one we can throw because something is seriously wrong
+                            // TODO: may need to change later - at the moment we only allow bidirectional ManyToOne and OneToMany!
+                            oneToMany.MappedByProperty = mappingEntity.Columns.Single(c => c.PropInfo.PropertyType == entity.PocoType).PropInfo;
+                        }
+                        else if (typeof(ManyToOne) == constraint.GetType())
+                        {
+                            var manyToOne = constraint as ManyToOne;
+                            var toType = manyToOne.ToPocoType;
+                            var toEntity = entities.First(e => e.PocoType == toType);
+                            manyToOne.ToEntity = toEntity;
+                            manyToOne.To = toEntity.PkColumn;
+                        }
+                        else if (typeof(ManyToMany) == constraint.GetType())
+                        {
+                            var manyToMany = constraint as ManyToMany;
+                            manyToMany.FromEntity = entity;
+                            var toType = manyToMany.ToPocoType;
+                            var toEntity = entities.First(e => e.PocoType == toType);
+                            manyToMany.ToEntity = toEntity;
+                        }
+                    }
+                }
+            }
             return new Schema(entities);
         }
+
+        private static void initializeSchema()
+        {
+            
+        }
+
+
+     
 
         /// <summary>
         /// filters a class of type t and returns only Properties that dont have the attribute Ignore or no attribute at all
@@ -67,12 +115,7 @@ namespace ORM_Lib
                 .All(tableTypes.Contains);
         }
 
-        
-        // iterates over all entities and their columns and then their constraints 
-        // resolves the constraints by building the references to the columns (that we now already created)
-        private static void FinishSchema()
-        {
-            
-        }
+
+       
     }
 }

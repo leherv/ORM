@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+  db:
+    build: db/
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: '1234'
+      POSTGRES_DB: 'orm_db'

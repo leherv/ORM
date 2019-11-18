@@ -1,7 +1,6 @@
-using ORM_Example;
 using ORM_Lib;
 
-namespace ORM_Tests
+namespace ORM_Example
 {
     public class ExampleDbContext : DbContext
     {

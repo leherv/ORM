@@ -9,7 +9,12 @@ namespace ORM_Example
     {
         [ColumnName("Custom_name")]
         public int Salary { get; set; }
+        
+        [OneToMany]
         public List<Course> Courses { get; set; }
+        
+        [OneToMany]
+        public List<Class> Classes { get; set; }
         
         public Teacher(string name, string firstName, Gender gender, DateTime bDay, int salary, List<Course> courses) : base(name, firstName, gender, bDay)
         {

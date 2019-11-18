@@ -9,6 +9,8 @@ namespace ORM_Example
         public long OtherNameThanId { get; set; }
         public bool Active { get; }
         public string Name { get; }
+        
+        [ManyToOne]
         public Teacher Teacher { get; }
         
         [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_person_id", ForeignKeyFar = "fk_course_id")]
