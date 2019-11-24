@@ -2,121 +2,130 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using ORM_Lib;
+using ORM_Lib.TypeMapper;
 
 namespace ORM_Tests.ORM_Lib
 {
-    public class TestTypeMapper
+    public class TestPostgresTypeMapper
     {
+
+        private ITypeMapper _typeMapper;
+
+        [SetUp]
+        public void Setup()
+        {
+            _typeMapper = new PostgresTypeMapper();
+        }
         
         [Test]
         public void TestSByte()
         {
-            Assert.AreEqual("smallint", TypeMapper.GetDbType(typeof(sbyte)));
+            Assert.AreEqual("smallint", _typeMapper.GetDbType(typeof(sbyte)));
         }
         
         [Test]
         public void TestShort()
         {
-            Assert.AreEqual("smallint", TypeMapper.GetDbType(typeof(short)));
+            Assert.AreEqual("smallint", _typeMapper.GetDbType(typeof(short)));
         }
         
         [Test]
         public void TestInt()
         {
-            Assert.AreEqual("integer", TypeMapper.GetDbType(typeof(int)));            
+            Assert.AreEqual("integer", _typeMapper.GetDbType(typeof(int)));            
         }
 
         
         [Test]
         public void TestLong()
         {
-            Assert.AreEqual("bigint", TypeMapper.GetDbType(typeof(long)));            
+            Assert.AreEqual("bigint", _typeMapper.GetDbType(typeof(long)));            
         }
 
         
         [Test]
         public void TestByte()
         {
-            Assert.AreEqual("smallint", TypeMapper.GetDbType(typeof(byte)));
+            Assert.AreEqual("smallint", _typeMapper.GetDbType(typeof(byte)));
         }
         
         [Test]
         public void TestByteArray()
         {
-            Assert.AreEqual("bytea", TypeMapper.GetDbType(typeof(byte[])));
+            Assert.AreEqual("bytea", _typeMapper.GetDbType(typeof(byte[])));
         }
         
         [Test]
         public void TestUShort()
         {
-            Assert.AreEqual("integer", TypeMapper.GetDbType(typeof(ushort)));
+            Assert.AreEqual("integer", _typeMapper.GetDbType(typeof(ushort)));
         }
         
         [Test]
         public void TestUInt()
         {
-            Assert.AreEqual("oid", TypeMapper.GetDbType(typeof(uint)));
+            Assert.AreEqual("oid", _typeMapper.GetDbType(typeof(uint)));
         }
         
         [Test]
         public void TestFloat()
         {
-            Assert.AreEqual("real", TypeMapper.GetDbType(typeof(float)));
+            Assert.AreEqual("real", _typeMapper.GetDbType(typeof(float)));
         }
         
         [Test]
         public void TestDouble()
         {
-            Assert.AreEqual("double precision", TypeMapper.GetDbType(typeof(double)));
+            Assert.AreEqual("double precision", _typeMapper.GetDbType(typeof(double)));
         }
         
         [Test]
         public void TestDecimal()
         {
-            Assert.AreEqual("numeric", TypeMapper.GetDbType(typeof(decimal)));
+            Assert.AreEqual("numeric", _typeMapper.GetDbType(typeof(decimal)));
         }
         
         [Test]
         public void TestBool()
         {
-            Assert.AreEqual("boolean", TypeMapper.GetDbType(typeof(bool)));
+            Assert.AreEqual("boolean", _typeMapper.GetDbType(typeof(bool)));
         }
         
         [Test]
         public void TestString()
         {
-            Assert.AreEqual("text", TypeMapper.GetDbType(typeof(string)));
+            Assert.AreEqual("text", _typeMapper.GetDbType(typeof(string)));
         }
         
         [Test]
         public void TestChar()
         {
-            Assert.AreEqual("text", TypeMapper.GetDbType(typeof(char)));
+            Assert.AreEqual("text", _typeMapper.GetDbType(typeof(char)));
         }
         
         [Test]
         public void TestCharA()
         {
-            Assert.AreEqual("text", TypeMapper.GetDbType(typeof(char[])));
+            Assert.AreEqual("text", _typeMapper.GetDbType(typeof(char[])));
         }
         
         [Test]
         public void TestDatetime()
         {
-            Assert.AreEqual("timestamp", TypeMapper.GetDbType(typeof(DateTime)));
+            Assert.AreEqual("timestamp", _typeMapper.GetDbType(typeof(DateTime)));
         }
 
         [Test]
         public void TestNonExistent()
         {
-            var e = new Entity();
-            Assert.AreEqual(null, TypeMapper.GetDbType(e.GetType()));
+            var e = new TestEntity();
+            Assert.AreEqual(null, _typeMapper.GetDbType(e.GetType()));
         }
 
         [Test]
         public void TestVoid()
         {
-            Assert.AreEqual(null, TypeMapper.GetDbType(typeof(void)));            
+            Assert.AreEqual(null, _typeMapper.GetDbType(typeof(void)));            
         }
 
     }

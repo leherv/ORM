@@ -3,12 +3,13 @@ using System.Linq;
 using System.Text;
 using ORM_Lib.Constraints_Attributes;
 using ORM_Lib.DbSchema;
+using ORM_Lib.TypeMapper;
 
 namespace ORM_Lib.Ddl
 {
-    public static class SchemaSqlBuilder
+    internal static class SchemaSqlBuilder
     {
-        public static string BuildDdl(Schema schema)
+        public static string BuildDdl(Schema schema, ITypeMapper typeMapper)
         {
             var ddlBuilder = new StringBuilder();
             foreach (var entity in schema.Entities)
@@ -18,12 +19,12 @@ namespace ORM_Lib.Ddl
             }
 
             ddlBuilder.AppendLine();
-            BuildManyToMany(schema, ddlBuilder);
+            BuildManyToMany(schema, ddlBuilder, typeMapper);
             BuildConstraints(schema, ddlBuilder);
             return ddlBuilder.ToString();
         }
-        
-        private static void BuildManyToMany(Schema schema, StringBuilder ddlBuilder)
+
+        private static void BuildManyToMany(Schema schema, StringBuilder ddlBuilder, ITypeMapper typeMapper)
         {
             var manyToMany = schema.Entities
                 .SelectMany(e => e.Columns)
@@ -32,14 +33,14 @@ namespace ORM_Lib.Ddl
                 .Select(m => m as ManyToMany)
                 .Distinct(new ManyToManyComparer())
                 .ToList();
-                
-            manyToMany    
-                .Select(EntitySqlBuilder.BuildManyToManyDdl)
+
+            manyToMany
+                .Select(m => EntitySqlBuilder.BuildManyToManyDdl(m, typeMapper))
                 .Aggregate(ddlBuilder, (builder, s) => builder.AppendLine(s + ";"));
             ddlBuilder.AppendLine();
             //TODO: maybe leave here - can not handle in BuildConstraints or it will be done twice
             manyToMany
-                .Select(m => BuildPrimaryKey(m.TableName, new [] {m.ForeignKeyFar, m.ForeignKeyNear}))
+                .Select(m => BuildPrimaryKey(m.TableName, new[] {m.ForeignKeyFar, m.ForeignKeyNear}))
                 .Aggregate(ddlBuilder, (builder, s) => builder.AppendLine(s + ";"));
         }
 
@@ -97,7 +98,8 @@ namespace ORM_Lib.Ddl
 
         private static string BuildPrimaryKey(string tableName, IEnumerable<string> columnName)
         {
-            return $"ALTER TABLE {tableName} ADD PRIMARY KEY ({columnName.Aggregate("", (s1, s2) => s1 == "" ? $"{s2}" : $"{s1}, {s2}")})";
+            return
+                $"ALTER TABLE {tableName} ADD PRIMARY KEY ({columnName.Aggregate("", (s1, s2) => s1 == "" ? $"{s2}" : $"{s1}, {s2}")})";
         }
     }
 }

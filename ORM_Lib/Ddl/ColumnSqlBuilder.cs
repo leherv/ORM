@@ -1,17 +1,18 @@
 using ORM_Lib.DbSchema;
+using ORM_Lib.TypeMapper;
 
 namespace ORM_Lib.Ddl
 {
-    public static class ColumnSqlBuilder
+    internal static class ColumnSqlBuilder
     {
         public static string BuildDdl(Column column)
         {
             return $"{column.Name} {column.DbType}";
         }
 
-        public static string BuildManyToManyDdl(string fkName)
+        public static string BuildManyToManyDdl(string fkName, ITypeMapper typeMapper)
         {
-            return $"{fkName} {TypeMapper.GetForeignKeyType()}";
+            return $"{fkName} {typeMapper.GetForeignKeyType()}";
         }
     }
 }

@@ -6,9 +6,9 @@ namespace ORM_Lib.Constraints_Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public class ManyToOne : Attribute, IConstraint
     {
-        public Column To { get; set; }
+        internal Column To { get; set; }
         
-        public Entity ToEntity { get; set; }
+        internal Entity ToEntity { get; set; }
         public Type ToPocoType { get; set; }
         
     }

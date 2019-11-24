@@ -87,8 +87,13 @@
           <e p="DbQueryProvider.cs" t="Include" />
           <e p="ObjectReader.cs" t="Include" />
           <e p="QueryTranslator.cs" t="Include" />
+          <e p="SelectQuery.cs" t="Include" />
+          <e p="SelectQueryBuilder.cs" t="Include" />
         </e>
-        <e p="TypeMapper.cs" t="Include" />
+        <e p="TypeMapper" t="Include">
+          <e p="PostgresTypeMapper.cs" t="Include" />
+          <e p="TypeMapper.cs" t="Include" />
+        </e>
       </e>
       <e p="ORM_tests" t="IncludeRecursive">
         <e p="bin" t="ExcludeRecursive" />
@@ -101,6 +106,9 @@
         </e>
         <e p="ORM_lib" t="Include">
           <e p="Entity.cs" t="Include" />
+          <e p="Query" t="Include">
+            <e p="TestSelectQuery.cs" t="Include" />
+          </e>
           <e p="TestTypeMapper.cs" t="Include" />
         </e>
         <e p="ORM_tests.csproj" t="IncludeRecursive" />

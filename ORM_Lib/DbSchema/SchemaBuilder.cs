@@ -4,28 +4,29 @@ using System.Linq;
 using System.Reflection;
 using ORM_Lib.Constraints_Attributes;
 using ORM_Lib.Extensions;
+using ORM_Lib.TypeMapper;
 
 namespace ORM_Lib.DbSchema
 {
-    public static class SchemaBuilder
+    internal static class SchemaBuilder
     {
-        public static Schema BuildSchema(IEnumerable<Type> types)
+        public static Schema BuildSchema(IEnumerable<Type> types, ITypeMapper typeMapper)
         {
             var tableTypes = types.ToList();
-            var entities = InitializeSchema(tableTypes).ToList();
+            var entities = InitializeSchema(tableTypes, typeMapper).ToList();
             FinalizeSchema(entities);
             return new Schema(entities);
         }
 
-        private static IEnumerable<Entity> InitializeSchema(List<Type> tableTypes)
+        private static IEnumerable<Entity> InitializeSchema(List<Type> tableTypes, ITypeMapper typeMapper)
         {
             foreach (var type in tableTypes)
             {
                 var propertyInfos = FilterProperties(type).ToList();
                 var returnTypes = propertyInfos.Select(pInfo => pInfo.PropertyType);
-                if (!ValidColumnTypes(returnTypes, tableTypes))
+                if (!ValidColumnTypes(returnTypes, tableTypes, typeMapper))
                     throw new InvalidOperationException("Type is no DBSet or not supported by the Database");
-                yield return EntityBuilder.BuildEntity(type, propertyInfos, tableTypes);
+                yield return EntityBuilder.BuildEntity(type, propertyInfos, tableTypes, typeMapper);
             }
         }
 
@@ -64,7 +65,6 @@ namespace ORM_Lib.DbSchema
                     else if (typeof(ManyToMany) == constraint.GetType())
                     {
                         var manyToMany = constraint as ManyToMany;
-                        manyToMany.FromEntity = entity;
                         var toType = manyToMany.ToPocoType;
                         var toEntity = entities.First(e => e.PocoType == toType);
                         manyToMany.ToEntity = toEntity;
@@ -102,11 +102,11 @@ namespace ORM_Lib.DbSchema
         /// <param name="columnTypes">Types to check</param>
         /// <param name="tableTypes">Types of other DbSets</param>
         /// <returns>true when valid, false when not</returns>
-        private static bool ValidColumnTypes(IEnumerable<Type> columnTypes, IEnumerable<Type> tableTypes)
+        private static bool ValidColumnTypes(IEnumerable<Type> columnTypes, IEnumerable<Type> tableTypes, ITypeMapper typeMapper)
         {
             return columnTypes
                 .Select(cType => cType.IsNonStringEnumerable() ? cType.GetGenericArguments()[0] : cType)
-                .Where(columnType => string.IsNullOrEmpty(TypeMapper.GetDbType(columnType)) && !columnType.IsEnum)
+                .Where(columnType => string.IsNullOrEmpty(typeMapper.GetDbType(columnType)) && !columnType.IsEnum)
                 .All(tableTypes.Contains);
         }
     }

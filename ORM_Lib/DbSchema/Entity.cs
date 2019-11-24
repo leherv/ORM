@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ORM_Lib.DbSchema
 {
-    public class Entity
+    internal class Entity
     {
         
         public string Name { get; set; }
@@ -21,6 +22,11 @@ namespace ORM_Lib.DbSchema
             PocoType = pocoType;
             PkColumn = pkColumn;
         }
-        
+
+        public Column GetColumnByName(string name)
+        {
+            return Columns.Single(c => c.Name == name);
+        }
+
     }
 }

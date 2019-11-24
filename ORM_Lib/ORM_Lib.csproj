@@ -4,4 +4,11 @@
         <TargetFramework>netcoreapp3.0</TargetFramework>
     </PropertyGroup>
 
+<!--TODO: remember    to make internal classes testable-->
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>ORM_Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
 </Project>

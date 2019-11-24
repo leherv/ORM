@@ -1,26 +1,35 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using ORM_Lib.DbSchema;
+using ORM_Lib.TypeMapper;
 
 namespace ORM_Lib
 {
-    public class DbContext
+    public abstract class DbContext
     {
-        public Schema Schema { get; set; }
+        // abstract IDbConnection (ConnectionPooling macht selten Sinn) normalerweise reicht eigentlich immer eine DBConnection und man überlässt dem Hersteller die Arbeit
+        // das genauer zu handeln - ConnectionPooling macht fast nie Sinn wenn man es nicht explizit braucht!
+        public abstract IDbConnection DbConnection { get; }
+        
+        // abstract TypeMapper vom User verlangen (ITypeMapper to be exact) und wir haben halt schon eine konkrete implementation bereitliegen für postgres
+        protected abstract ITypeMapper TypeMapper { get; }
+        internal Schema Schema { get; set; }
 
-        public DbContext()
+        protected DbContext()
         {
             var propertyInfos = PropertyInfos().ToList();
             var types = Types(propertyInfos).ToList();
             BuildDbSets(propertyInfos, types);
-            Schema = BuildSchema(types);
+            Schema = BuildSchema(types, TypeMapper);
         }
-
+        
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)
         {
-            var dbSets = types.Select(DbSetBuilder.BuildDbSet);
+            var dbSets = types.Select(t => DbSetBuilder.BuildDbSet(t,this));
             var tup = dbSets.Zip(propertyInfos, Tuple.Create);
             foreach (var (dbSet, method) in tup)
             {
@@ -28,9 +37,9 @@ namespace ORM_Lib
             }
         }
 
-        private static Schema BuildSchema(IEnumerable<Type> types)
+        private static Schema BuildSchema(IEnumerable<Type> types, ITypeMapper typeMapper)
         {
-            return SchemaBuilder.BuildSchema(types);
+            return SchemaBuilder.BuildSchema(types, typeMapper);
         }
 
         private IEnumerable<PropertyInfo> PropertyInfos()

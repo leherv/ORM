@@ -9,7 +9,7 @@ namespace ORM_Lib.Constraints_Attributes
     {
         // TODO: not sure if we will need all this
         public PropertyInfo MappedByProperty { get; set; }
-        public Entity MappedByEntity { get; set; }
+        internal Entity MappedByEntity { get; set; }
         public Type MappedByPocoType { get; set; }
     }
 }

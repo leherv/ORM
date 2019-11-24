@@ -4,7 +4,7 @@ using ORM_Lib.Constraints_Attributes;
 
 namespace ORM_Lib.DbSchema
 {
-    public class Column
+    internal class Column
     {
         
         public bool IsDbColumn { get; set; }

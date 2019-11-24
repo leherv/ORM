@@ -3,10 +3,11 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using ORM_Lib.Query;
 
 namespace ORM_Lib
 {
-    public class DbQueryProvider: IQueryProvider
+    internal class DbQueryProvider: IQueryProvider
     {
         private DbConnection _connection;
 

@@ -4,12 +4,13 @@ using System.Linq;
 using System.Reflection;
 using ORM_Lib.Constraints_Attributes;
 using ORM_Lib.Extensions;
+using ORM_Lib.TypeMapper;
 
 namespace ORM_Lib.DbSchema
 {
-    public static class ColumnBuilder
+    internal static class ColumnBuilder
     {
-        public static Column BuildColumn(PropertyInfo propertyInfo, Type tableType, List<Type> tableTypes)
+        public static Column BuildColumn(PropertyInfo propertyInfo, Type tableType, List<Type> tableTypes, ITypeMapper typeMapper)
         {
             var manyToOneUsed = false;
             var isDbColumn = true;
@@ -31,7 +32,6 @@ namespace ORM_Lib.DbSchema
                 {
                     var manyToMany = propertyInfoCustomAttribute as ManyToMany;
                     manyToMany.ToPocoType = propertyInfo.PropertyType.GetGenericArguments()[0];
-                    manyToMany.FromPocoType = tableType;
                     isDbColumn = false;
                     constraints.Add(manyToMany);
                 }
@@ -78,13 +78,13 @@ namespace ORM_Lib.DbSchema
                 BuildColumnName(propertyInfo),
                 constraints,
                 propertyInfo,
-                DbType(propertyInfo.PropertyType, tableTypes, constraints),
+                DbType(propertyInfo.PropertyType, tableTypes, constraints, typeMapper),
                 isDbColumn
             );
         }
 
 
-        public static List<Column> BuildInterimColumns(ManyToMany m, Type from, Type to)
+        public static List<Column> BuildInterimColumns(ManyToMany m, Type from, Type to, ITypeMapper typeMapper)
         {
             return new List<Column>()
             {
@@ -92,13 +92,13 @@ namespace ORM_Lib.DbSchema
                     m.ForeignKeyNear,
                     new HashSet<IConstraint>() {new Fk(from)},
                     null,
-                    TypeMapper.GetForeignKeyType(),
+                    typeMapper.GetForeignKeyType(),
                     true),
                 new Column(
                     m.ForeignKeyFar,
                     new HashSet<IConstraint>() {new Fk(to)},
                     null,
-                    TypeMapper.GetForeignKeyType(),
+                    typeMapper.GetForeignKeyType(),
                     true)
             };
         }
@@ -114,16 +114,16 @@ namespace ORM_Lib.DbSchema
             return string.IsNullOrEmpty(customName) ? t.Name : customName;
         }
 
-        private static string DbType(Type t, List<Type> tableTypes, HashSet<IConstraint> constraints)
+        private static string DbType(Type t, List<Type> tableTypes, HashSet<IConstraint> constraints, ITypeMapper typeMapper)
         {
             if (constraints.Any(c => c.GetType() == typeof(Pk))) return "serial";
             if (t.IsEnum) return "text";
             if (t.IsNonStringEnumerable()) t = t.GetGenericArguments()[0];
-            var dbType = TypeMapper.GetDbType(t);
+            var dbType = typeMapper.GetDbType(t);
             if (!string.IsNullOrEmpty(dbType)) return dbType;
             if (tableTypes.Any(tType => tType == t))
             {
-                dbType = TypeMapper.GetForeignKeyType();
+                dbType = typeMapper.GetForeignKeyType();
             }
 
             return dbType;

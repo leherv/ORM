@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using System.Data.Common;
 using System.Reflection;
 
-namespace ORM_Lib
+namespace ORM_Lib.Query
 {
     public class ObjectReader<T> : IEnumerable<T>, IEnumerable where T : class, new()
     {

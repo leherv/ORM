@@ -11,8 +11,8 @@ namespace ORM_Lib.Constraints_Attributes
             ToPocoType = toPocoType;
         }
         
-        public Entity ToEntity { get; set; }
-        public Column To { get; set; }
-        public Type ToPocoType { get; set; }
+        internal Entity ToEntity { get; set; }
+        internal Column To { get; set; }
+        internal Type ToPocoType { get; set; }
     }
 }

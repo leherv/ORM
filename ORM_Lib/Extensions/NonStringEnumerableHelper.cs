@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace ORM_Lib.Extensions
 {
-    public static class NonStringEnumerableHelper
+    internal static class NonStringEnumerableHelper
     {
         public static bool IsNonStringEnumerable(this PropertyInfo pi) {
             return pi != null && pi.PropertyType.IsNonStringEnumerable();

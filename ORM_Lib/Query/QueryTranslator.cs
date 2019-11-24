@@ -3,9 +3,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace ORM_Lib
+namespace ORM_Lib.Query
 {
-    public class QueryTranslator : ExpressionVisitor
+    internal class QueryTranslator : ExpressionVisitor
     {
         StringBuilder sb;
 

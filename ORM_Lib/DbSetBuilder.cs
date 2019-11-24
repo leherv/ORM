@@ -5,18 +5,18 @@ using System.Reflection;
 
 namespace ORM_Lib
 {
-    public class DbSetBuilder
+    internal class DbSetBuilder
     {
-        public static object BuildDbSet(Type t)
+        public static object BuildDbSet(Type t, DbContext ctx)
         {
             return typeof(DbSetBuilder)
                 .GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateDbSet))
                 .MakeGenericMethod(t)
-                .Invoke(null, new object[] { });
+                .Invoke(null, new object[] {ctx});
         }
 
-        private static DbSet<T> CreateDbSet<T>() where T : class => new InternalDbSet<T>();
+        private static DbSet<T> CreateDbSet<T>(DbContext ctx) where T : class => new InternalDbSet<T>(ctx);
 
        
     }
