@@ -10,5 +10,9 @@
             <_Parameter1>ORM_Tests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Npgsql" Version="4.1.2" />
+      <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
+    </ItemGroup>
 
 </Project>

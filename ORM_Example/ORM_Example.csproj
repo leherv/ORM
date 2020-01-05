@@ -6,7 +6,32 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Npgsql" Version="4.1.2" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\ORM_Lib\ORM_Lib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Npgsql">
+        <HintPath>..\..\..\users\vik\appdata\local\microsoft\visualstudio\16.0_dd959e29\extensions\0oefttu3.3zu\Npgsql.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="orm_dbDataSet.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>orm_dbDataSet.xsd</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="orm_dbDataSet.xsd">
+        <Generator>MSDataSetGenerator</Generator>
+        <LastGenOutput>orm_dbDataSet.Designer.cs</LastGenOutput>
+      </None>
     </ItemGroup>
 
 </Project>

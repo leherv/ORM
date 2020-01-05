@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -11,20 +10,29 @@ namespace ORM_Lib
 {
     public abstract class DbContext
     {
-        // abstract IDbConnection (ConnectionPooling macht selten Sinn) normalerweise reicht eigentlich immer eine DBConnection und man überlässt dem Hersteller die Arbeit
-        // das genauer zu handeln - ConnectionPooling macht fast nie Sinn wenn man es nicht explizit braucht!
-        public abstract IDbConnection DbConnection { get; }
+        protected abstract ORMConfiguration Configuration { get; }
         
-        // abstract TypeMapper vom User verlangen (ITypeMapper to be exact) und wir haben halt schon eine konkrete implementation bereitliegen für postgres
-        protected abstract ITypeMapper TypeMapper { get; }
+        // not visible for user
         internal Schema Schema { get; set; }
+        internal Database Database { get; set; }
 
         protected DbContext()
         {
             var propertyInfos = PropertyInfos().ToList();
             var types = Types(propertyInfos).ToList();
             BuildDbSets(propertyInfos, types);
-            Schema = BuildSchema(types, TypeMapper);
+            Schema = BuildSchema(types, Configuration.TypeMapper);
+            Database = new Database(Configuration.ConnectionString);
+
+            if(Configuration.CreateDB)
+            {
+                var rows = Database.ExecuteDDL(Ddl.SchemaSqlBuilder.BuildDdl(Schema, Configuration.TypeMapper));
+                //var sql = Ddl.SchemaSqlBuilder.BuildDdl(Schema, TypeMapper);
+                //var path = "C:\\Repos\\ORM\\ORM_Example\\output.sql";
+                //if (!File.Exists(path)) return;
+                //using var tw = new StreamWriter(path, true);
+                //tw.WriteLine(sql);
+            }
         }
         
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)

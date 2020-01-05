@@ -25,10 +25,8 @@ namespace ORM_Lib.Query
 
         public IEnumerable<T> Execute()
         {
-            var dbConnection = _ctx.DbConnection;
-            var cmd = dbConnection.CreateCommand();
-            cmd.CommandText = BuildQuery();
-            var reader = cmd.ExecuteReader();
+            Database db = _ctx.Database;
+            var dataReader = db.ExecuteQuery(BuildQuery());
             return new List<T>();
         }
 

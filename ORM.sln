@@ -1,12 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORM", "ORM\ORM.csproj", "{5594F578-4786-433E-9AA9-9E71BE988952}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ORM_Lib", "ORM_Lib\ORM_Lib.csproj", "{C7E7BDAB-43E1-46D7-A9D4-FCA783C152A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORM_Lib", "ORM_Lib\ORM_Lib.csproj", "{C7E7BDAB-43E1-46D7-A9D4-FCA783C152A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ORM_Tests", "ORM_Tests\ORM_Tests.csproj", "{E0DF4B11-D3E4-4B1C-9390-6AB95688CB6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORM_Tests", "ORM_Tests\ORM_Tests.csproj", "{E0DF4B11-D3E4-4B1C-9390-6AB95688CB6D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORM_Example", "ORM_Example\ORM_Example.csproj", "{3DFD535D-0DF7-4DC1-8093-672A2943C153}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ORM_Example", "ORM_Example\ORM_Example.csproj", "{3DFD535D-0DF7-4DC1-8093-672A2943C153}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5594F578-4786-433E-9AA9-9E71BE988952}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5594F578-4786-433E-9AA9-9E71BE988952}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5594F578-4786-433E-9AA9-9E71BE988952}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5594F578-4786-433E-9AA9-9E71BE988952}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C7E7BDAB-43E1-46D7-A9D4-FCA783C152A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C7E7BDAB-43E1-46D7-A9D4-FCA783C152A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7E7BDAB-43E1-46D7-A9D4-FCA783C152A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,5 +27,11 @@ Global
 		{3DFD535D-0DF7-4DC1-8093-672A2943C153}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DFD535D-0DF7-4DC1-8093-672A2943C153}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DFD535D-0DF7-4DC1-8093-672A2943C153}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {13CE99D3-39BB-4421-959C-09A8E4881900}
 	EndGlobalSection
 EndGlobal

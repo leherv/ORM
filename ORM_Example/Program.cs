@@ -12,15 +12,8 @@ namespace ORM_Example
         static void Main(string[] args)
         {
             var dbContext = new ExampleDbContext();
-//            var schema = dbContext.Schema;
-//
-//            var ddl = SchemaSqlBuilder.BuildDdl(schema);
-//            using (var file = new StreamWriter("test.sql"))
-//            {
-//                file.WriteLine(ddl);
-//            }
-            
-            var queryBuilder = dbContext.Persons.Select(new [] {"Name", "FirstName"});
+
+            var queryBuilder = dbContext.Persons.Select(new[] { "Name", "FirstName" }).Build().Execute();
         }
     }
 }
