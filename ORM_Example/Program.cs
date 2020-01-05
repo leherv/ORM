@@ -13,7 +13,7 @@ namespace ORM_Example
         {
             var dbContext = new ExampleDbContext();
 
-            var queryBuilder = dbContext.Persons.Select(new[] { "Name", "FirstName" }).Build().Execute();
+            //var queryBuilder = dbContext.Persons.Select(new[] { "Name", "FirstName" }).Build().Execute();
         }
     }
 }

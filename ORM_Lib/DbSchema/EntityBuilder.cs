@@ -11,7 +11,7 @@ namespace ORM_Lib.DbSchema
     {
         public static Entity BuildEntity(Type tableType, IEnumerable<PropertyInfo> propertyInfos, List<Type> tableTypes, ITypeMapper typeMapper)
         {
-            var propInfos = propertyInfos.ToList();
+            var propInfos = HandleInheritance(propertyInfos, tableType);
             if (!ContainsPk(propInfos)) throw new InvalidOperationException("Entity has no primary key");
             var columns = propInfos.Select(propInfo => ColumnBuilder.BuildColumn(propInfo, tableType, tableTypes, typeMapper)).ToList();
             // TODO: maybe return tuple of (PkColumn, Columns) in columnBuilder instead
@@ -34,13 +34,23 @@ namespace ORM_Lib.DbSchema
 
             return string.IsNullOrEmpty(customName) ? t.Name : customName;
         }
-        
+
         private static bool ContainsPk(IEnumerable<PropertyInfo> propertyInfos)
         {
             return propertyInfos
-                .Any(propInfo => 
-                    "id".Equals(propInfo.Name.ToLower()) || 
-                    propInfo.GetCustomAttributes().Any(ca => ca.GetType() == typeof(Pk)));
+                .Any(IsPk);
+        }
+
+        private static bool IsPk(PropertyInfo propInfo)
+        {
+            return "id".Equals(propInfo.Name.ToLower()) ||
+                    propInfo.GetCustomAttributes().Any(ca => ca.GetType() == typeof(Pk));
+        }
+
+        // includes only those properties declared in the subclass (columns in db would be duplicates otherwise) but leaves the primary key because we need it to reference the superclass
+        private static IEnumerable<PropertyInfo> HandleInheritance(IEnumerable<PropertyInfo> propInfos, Type tableType)
+        {
+            return propInfos.Where(propInfo => propInfo.DeclaringType == tableType || IsPk(propInfo));
         }
     }
 }

@@ -19,19 +19,4 @@
       </Reference>
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Update="orm_dbDataSet.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>orm_dbDataSet.xsd</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="orm_dbDataSet.xsd">
-        <Generator>MSDataSetGenerator</Generator>
-        <LastGenOutput>orm_dbDataSet.Designer.cs</LastGenOutput>
-      </None>
-    </ItemGroup>
-
 </Project>

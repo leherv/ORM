@@ -13,7 +13,7 @@ namespace ORM_Example
         protected override ORMConfiguration Configuration => new ORMConfiguration(
             new PostgresTypeMapper(),
             ConnectionStringBuilder.connectionString(),
-            false
+            true
         );
 
         public DbSet<Person> Persons { get; set; }
