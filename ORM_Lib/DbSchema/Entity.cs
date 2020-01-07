@@ -16,19 +16,26 @@ namespace ORM_Lib.DbSchema
 
         public List<Type> SuperClasses { get; set; }
 
+        public string Alias { get; set; }
 
-        public Entity(string eName, List<Column> columns, Type pocoType, Column pkColumn, List<Type> superClasses)
+        public Entity(string eName, List<Column> columns, Type pocoType, Column pkColumn, List<Type> superClasses, int aliasNumber)
         {
             Name = eName;
             Columns = columns;
             PocoType = pocoType;
             PkColumn = pkColumn;
             SuperClasses = superClasses;
+            Alias = BuildAlias(aliasNumber);
         }
 
         public Column GetColumnByName(string name)
         {
             return Columns.SingleOrDefault(c => c.Name == name);
+        }
+
+        private string BuildAlias(int i)
+        {
+            return $"{Name.First()}{i}";
         }
 
     }

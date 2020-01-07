@@ -9,7 +9,7 @@ namespace ORM_Lib.DbSchema
 {
     internal static class EntityBuilder
     {
-        public static Entity BuildEntity(Type tableType, IEnumerable<PropertyInfo> propertyInfos, List<Type> tableTypes, ITypeMapper typeMapper)
+        public static Entity BuildEntity(Type tableType, IEnumerable<PropertyInfo> propertyInfos, List<Type> tableTypes, ITypeMapper typeMapper, int aliasNumber)
         {
             // to handle inheritance
             var superClasses = tableTypes.Where(t => t.IsAssignableFrom(tableType) && t != tableType).ToList();
@@ -25,7 +25,8 @@ namespace ORM_Lib.DbSchema
                 columns,
                 tableType,
                 pkColumn,
-                superClasses
+                superClasses,
+                aliasNumber
             );
         }
 

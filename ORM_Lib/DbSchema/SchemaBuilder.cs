@@ -20,13 +20,14 @@ namespace ORM_Lib.DbSchema
 
         private static IEnumerable<Entity> InitializeSchema(List<Type> tableTypes, ITypeMapper typeMapper)
         {
+            var i = 1;
             foreach (var type in tableTypes)
             {
                 var propertyInfos = FilterProperties(type).ToList();
                 var returnTypes = propertyInfos.Select(pInfo => pInfo.PropertyType);
                 if (!ValidColumnTypes(returnTypes, tableTypes, typeMapper))
                     throw new InvalidOperationException("Type is no DBSet or not supported by the Database");
-                yield return EntityBuilder.BuildEntity(type, propertyInfos, tableTypes, typeMapper);
+                yield return EntityBuilder.BuildEntity(type, propertyInfos, tableTypes, typeMapper, i++);
             }
         }
 

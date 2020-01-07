@@ -9,15 +9,15 @@ namespace ORM_Lib.Query
     public class SelectQuery<T>
     {
         private DbContext _ctx;
-        private List<(Entity, List<(Column, string)>)> _entityColumnAlias;
+        private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
 
-        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<(Entity, List<(Column, string)>)> entityColumnAlias)
+
+        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns)
         {
             _ctx = ctx;
             _entityExecutedOn = entityExecutedOn;
-            _entityColumnAlias = entityColumnAlias;
-            _ctx = ctx;
+            _combinedQueryColumns = combinedQueryColumns;
         }
 
 
@@ -31,19 +31,19 @@ namespace ORM_Lib.Query
         {
             Database db = _ctx.Database;
             // we send all the queriedColumns here to decide which to set on the object later
-            var result = db.ExecuteQuery<T>(BuildQuery(), _entityExecutedOn, QueriedColumns());
+            var result = db.ExecuteQuery<T>(BuildQuery(), _entityExecutedOn, _combinedQueryColumns);
             return result;
         }
 
         //
         public string BuildFrom()
         {
-            if (_entityColumnAlias.Count > 1)
+            if (_entityExecutedOn.SuperClasses.Count >= 1)
             {
-                var superEntity = _entityColumnAlias.ElementAt(1).Item1;
-                var superEntityAlias = _entityColumnAlias.ElementAt(1).Item2.First().Item2;
-                var entityAlias = _entityColumnAlias.First().Item2.First().Item2;
-                return $"{superEntity.Name} {superEntityAlias} JOIN {_entityExecutedOn.Name} {entityAlias} ON {superEntityAlias}.{superEntity.PkColumn.Name} = {entityAlias}.{_entityExecutedOn.PkColumn.Name}";
+                var superEntity = _ctx.Schema.GetByType(_entityExecutedOn.SuperClasses.First());
+                var eAlias = _entityExecutedOn.Alias;
+                var sEAlias = superEntity.Alias;
+                return $"{superEntity.Name} {sEAlias} JOIN {_entityExecutedOn.Name} {eAlias} ON {sEAlias}.{superEntity.PkColumn.Name} = {eAlias}.{_entityExecutedOn.PkColumn.Name}";
             }
             else
             {
@@ -53,28 +53,12 @@ namespace ORM_Lib.Query
 
         private string CommaSeparatedColumns()
         {
-
-            var entityColumns = _entityColumnAlias.First().Item2;
-            if (_entityColumnAlias.Count > 1)
-            {
-                entityColumns.AddRange(_entityColumnAlias.ElementAt(2).Item2);
-            }
-            return entityColumns
-                .Where(colAlias => !colAlias.Item1.IsShadowAttribute)
-                // we have to only query columns present in the DB
-                // we have the reference to the column VIK just use it here and leave out all the fancy stuff
-                .Select(colAlias => $"{colAlias.Item2}.{colAlias.Item1.Name}")
+            // we have to only query those columns present in the DB
+            return _combinedQueryColumns
+                .Where(c => !c.IsShadowAttribute)
+                .Select(c => $"{(c.Entity.Alias)}.{c.Name}")
                 .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1}, {c2}");
         }
 
-        private List<Column> QueriedColumns()
-        {
-            var entityColumns = _entityColumnAlias.First().Item2.Select(columAlias => columAlias.Item1).ToList();
-            if (_entityColumnAlias.Count > 1)
-            {
-                entityColumns.AddRange(_entityColumnAlias.ElementAt(1).Item2.Select(columAlias => columAlias.Item1));
-            }
-            return entityColumns;
-        }
     }
 }

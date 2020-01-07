@@ -10,7 +10,8 @@ namespace ORM_Lib.Query
         private Type _fromType;
         private DbContext _ctx;
         private string[] _queriedColumns;
-        private List<(Entity, List<(Column, string)>)> _entityColumnAlias;
+        // set will probably be better
+        private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
 
         internal SelectQueryBuilder(DbContext ctx, string[] queriedColumns, Type fromType)
@@ -19,15 +20,13 @@ namespace ORM_Lib.Query
             _fromType = fromType;
             _entityExecutedOn = _ctx.Schema.GetByType(fromType);
             _queriedColumns = queriedColumns;
-            BuildColumnAliasMap();
+            BuildCombinedQueryColumns();
         }
 
-        private void BuildColumnAliasMap()
+        private void BuildCombinedQueryColumns()
         {
             //TODO: doc if columns is empty all columns will be used!
             var columnsToQuery = _queriedColumns.Length > 0 ? _queriedColumns.Select(c => _entityExecutedOn.GetColumnByName(c)).ToList() : _entityExecutedOn.Columns;
-
-            _entityColumnAlias = new List<(Entity, List<(Column, string)>)>();
             var entity = _ctx.Schema.GetByType(_fromType);
             if (entity.SuperClasses.Any())
             {
@@ -37,6 +36,8 @@ namespace ORM_Lib.Query
                     columnsToQuery.AddRange(superEntity.Columns);
                 }
             }
+            //_combinedQueryColumns = new HashSet<Column>(columnsToQuery);
+            _combinedQueryColumns = columnsToQuery;
         }
 
         public SelectQuery<T> Build()
@@ -45,15 +46,10 @@ namespace ORM_Lib.Query
                 _ctx,
                 // TODO: doc either a string [] of columns to select or empty array to select all
                 _entityExecutedOn,
-                _entityColumnAlias
+                _combinedQueryColumns
             ); 
 
 
-        }
-
-        private string Alias(Entity entity, int i)
-        {
-            return $"{entity.Name.First()}{i}";
         }
     }
 }

@@ -44,13 +44,13 @@ namespace ORM_Lib
 
         }
 
-        public IEnumerable<T> ExecuteQuery<T>(String queryString, Entity entity, List<(Entity, List<(Column, string)>)> queriedColumns)
+        public IEnumerable<T> ExecuteQuery<T>(String queryString, Entity entity, List<Column> combinedQueryColumns)
         {
          
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
             using var command = new NpgsqlCommand(queryString, connection);
-            var objectReader = new ObjectReader<T>(command.ExecuteReader(), entity, queriedColumns);
+            var objectReader = new ObjectReader<T>(command.ExecuteReader(), entity, combinedQueryColumns);
             var result = objectReader.Serialize();
             connection.Close();
             return result;
