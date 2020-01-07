@@ -5,14 +5,15 @@ using System.Linq;
 
 namespace ORM_Lib.Query
 {
-    public class SelectQueryBuilder<T>
+    class SelectQueryBuilder<T>
     {
+        private string[] _queriedColumns;
         private Type _fromType;
         private DbContext _ctx;
-        private string[] _queriedColumns;
-        // set will probably be better
         private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
+
+        private List<Func<bool>> whereLambdas = new List<Func<bool>>();
 
         internal SelectQueryBuilder(DbContext ctx, string[] queriedColumns, Type fromType)
         {
@@ -26,12 +27,12 @@ namespace ORM_Lib.Query
         private void BuildCombinedQueryColumns()
         {
             //TODO: doc if columns is empty all columns will be used!
-            var columnsToQuery = _queriedColumns.Length > 0 ? _queriedColumns.Select(c => _entityExecutedOn.GetColumnByName(c)).ToList() : _entityExecutedOn.Columns;
+            var columnsToQuery = (_queriedColumns != null && _queriedColumns.Length > 0) ? _queriedColumns.Select(c => _entityExecutedOn.GetColumnByName(c)).ToList() : _entityExecutedOn.Columns;
             var entity = _ctx.Schema.GetByType(_fromType);
             if (entity.SuperClasses.Any())
             {
                 var superEntity = entity.SuperClasses.Select(superCl => _ctx.Schema.GetByType(superCl)).First();
-                if (_queriedColumns.Length <= 0)
+                if (_queriedColumns != null && _queriedColumns.Length <= 0)
                 {
                     columnsToQuery.AddRange(superEntity.Columns);
                 }
@@ -40,6 +41,12 @@ namespace ORM_Lib.Query
             _combinedQueryColumns = columnsToQuery;
         }
 
+        public SelectQueryBuilder<T> Where(Func<bool> lambda)
+        {
+            whereLambdas.Add(lambda);
+            return this;
+        }
+      
         public SelectQuery<T> Build()
         {
             return new SelectQuery<T>(

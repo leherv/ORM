@@ -41,9 +41,9 @@ namespace ORM_Lib.Deserialization
             //TODO: why cant i use LINQ here
             foreach (var col in QueriedColumns)
             {
-                var value = reader[col.Name];
-                if (!col.IsShadowAttribute)
+                if (col.IsDbColumn)
                 {
+                    var value = reader[col.Name];
                     // specially handle enums
                     // TODO: doc enums will always be stored as strings
                     if (col.PropInfo.PropertyType.IsEnum)
@@ -51,7 +51,7 @@ namespace ORM_Lib.Deserialization
                         value = Enum.Parse(col.PropInfo.PropertyType, value as string);
                     }
                     col.PropInfo.SetMethod.Invoke(poco, new[] { value });
-                };
+                }
             }
             return (T)poco;
         }

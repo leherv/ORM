@@ -12,9 +12,9 @@ namespace ORM_Lib.DbSchema
     {
         public static Column BuildColumn(PropertyInfo propertyInfo, Type tableType, List<Type> tableTypes, ITypeMapper typeMapper)
         {
-            var manyToOneUsed = false;
-            var isDbColumn = true;
+            // property that is present in the db and in the object but needs to be initialized later
             var isShadowAttribute = false;
+            var manyToOneUsed = false;
             var constraints = new HashSet<IConstraint>();
 
             foreach (var propertyInfoCustomAttribute in propertyInfo.GetCustomAttributes())
@@ -33,16 +33,12 @@ namespace ORM_Lib.DbSchema
                 {
                     var manyToMany = propertyInfoCustomAttribute as ManyToMany;
                     manyToMany.ToPocoType = propertyInfo.PropertyType.GetGenericArguments()[0];
-                    isDbColumn = false;
-                    isShadowAttribute = true;
                     constraints.Add(manyToMany);
                 }
                 else if (propertyInfoCustomAttribute.GetType() == typeof(OneToMany))
                 {
                     var oneToMany = propertyInfoCustomAttribute as OneToMany;
                     oneToMany.MappedByPocoType = propertyInfo.PropertyType.GetGenericArguments()[0];
-                    isDbColumn = false;
-                    isShadowAttribute = true;
                     constraints.Add(propertyInfoCustomAttribute as IConstraint);
                 }
                 else if (propertyInfoCustomAttribute.GetType() == typeof(ManyToOne))
@@ -51,7 +47,8 @@ namespace ORM_Lib.DbSchema
                     manyToOne.ToPocoType = propertyInfo.PropertyType;
                     manyToOneUsed = true;
                     constraints.Add(manyToOne);
-                    
+                    isShadowAttribute = true;
+
                 }
             }
 
@@ -83,7 +80,6 @@ namespace ORM_Lib.DbSchema
                 constraints,
                 propertyInfo,
                 DbType(propertyInfo.PropertyType, tableTypes, constraints, typeMapper),
-                isDbColumn,
                 isShadowAttribute
             );
         }
@@ -98,15 +94,15 @@ namespace ORM_Lib.DbSchema
                     new HashSet<IConstraint>() {new Fk(from)},
                     null,
                     typeMapper.GetForeignKeyType(),
-                    true,
-                    false), //TODO: did not think about false here
+                    true
+                ),
                 new Column(
                     m.ForeignKeyFar,
                     new HashSet<IConstraint>() {new Fk(to)},
                     null,
                     typeMapper.GetForeignKeyType(),
-                    true,
-                    false) //TODO: did not think about false here
+                    true
+                )
             };
         }
 
@@ -125,7 +121,8 @@ namespace ORM_Lib.DbSchema
         {
             if (constraints.Any(c => c.GetType() == typeof(Pk))) return "serial";
             if (t.IsEnum) return "text";
-            if (t.IsNonStringEnumerable()) t = t.GetGenericArguments()[0];
+            //was just to determine if valid but has no dbtype
+            //if (t.IsNonStringEnumerable()) t = t.GetGenericArguments()[0];  
             var dbType = typeMapper.GetDbType(t);
             if (!string.IsNullOrEmpty(dbType)) return dbType;
             if (tableTypes.Any(tType => tType == t))

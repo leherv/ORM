@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using ORM_Lib.DbSchema;
 using ORM_Lib.TypeMapper;
+using ORM_Lib.Cache;
 
 namespace ORM_Lib
 {
@@ -13,8 +14,10 @@ namespace ORM_Lib
         protected abstract ORMConfiguration Configuration { get; }
         
         // not visible for user
-        internal Schema Schema { get; set; }
-        internal Database Database { get; set; }
+        internal Schema Schema { get; }
+        internal Database Database { get; }
+
+        internal PocoCache Cache { get; } = new PocoCache();
 
         protected DbContext()
         {
@@ -27,11 +30,6 @@ namespace ORM_Lib
             if(Configuration.CreateDB)
             {
                 var rows = Database.ExecuteDDL(Ddl.SchemaSqlBuilder.BuildDdl(Schema, Configuration.TypeMapper));
-                //var sql = Ddl.SchemaSqlBuilder.BuildDdl(Schema, TypeMapper);
-                //var path = "C:\\Repos\\ORM\\ORM_Example\\output.sql";
-                //if (!File.Exists(path)) return;
-                //using var tw = new StreamWriter(path, true);
-                //tw.WriteLine(sql);
             }
         }
         
