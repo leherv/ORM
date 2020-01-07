@@ -1,9 +1,8 @@
 ﻿using Npgsql;
+using ORM_Lib.DbSchema;
+using ORM_Lib.Deserialization;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Text;
 
 namespace ORM_Lib
 {
@@ -15,6 +14,7 @@ namespace ORM_Lib
         public Database(String connectionString)
         {
             _connectionString = connectionString;
+      
         }
 
         public int ExecuteDDL(String ddlString)
@@ -22,51 +22,38 @@ namespace ORM_Lib
             var rowsAffected = -1;
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
-            using var transaction = connection.BeginTransaction();
-            using var command = new NpgsqlCommand(ddlString, connection, transaction);
+            //using var transaction = connection.BeginTransaction();
+            //using var command = new NpgsqlCommand(ddlString, connection, transaction);
+            using var command = new NpgsqlCommand(ddlString, connection);
             //int paramValue = 5;
             //command.Parameters.AddWithValue("@pricePoint", paramValue);
             try
             {
                 rowsAffected = command.ExecuteNonQuery();
-                transaction.Commit();
+                //transaction.Commit();
                 Console.WriteLine("Transaction successful");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
                 Console.WriteLine("  Message: {0}", ex.Message);
-                transaction.Rollback();
+                //transaction.Rollback();
             }
             connection.Close();
             return rowsAffected;
 
         }
 
-        public IDataReader ExecuteQuery(String queryString)
+        public IEnumerable<T> ExecuteQuery<T>(String queryString, Entity entity, List<(Entity, List<(Column, string)>)> queriedColumns)
         {
-            SqlDataReader sqlDataReader = null;
+         
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
-            using var transaction = connection.BeginTransaction();
-            using var command = new NpgsqlCommand(queryString, connection, transaction);
-            //int paramValue = 5;
-            //command.Parameters.AddWithValue("@pricePoint", paramValue);
-
-            try
-            {
-                var reader = command.ExecuteReader();
-                transaction.Commit();
-                Console.WriteLine("Transaction successful");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
-                Console.WriteLine("  Message: {0}", ex.Message);
-                transaction.Rollback();
-            }
+            using var command = new NpgsqlCommand(queryString, connection);
+            var objectReader = new ObjectReader<T>(command.ExecuteReader(), entity, queriedColumns);
+            var result = objectReader.Serialize();
             connection.Close();
-            return sqlDataReader;
+            return result;
         }
 
     }

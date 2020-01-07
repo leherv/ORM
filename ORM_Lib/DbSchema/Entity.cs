@@ -14,18 +14,21 @@ namespace ORM_Lib.DbSchema
         
         public Type PocoType { get; set; } 
 
+        public List<Type> SuperClasses { get; set; }
 
-        public Entity(string eName, List<Column> columns, Type pocoType, Column pkColumn)
+
+        public Entity(string eName, List<Column> columns, Type pocoType, Column pkColumn, List<Type> superClasses)
         {
             Name = eName;
             Columns = columns;
             PocoType = pocoType;
             PkColumn = pkColumn;
+            SuperClasses = superClasses;
         }
 
         public Column GetColumnByName(string name)
         {
-            return Columns.Single(c => c.Name == name);
+            return Columns.SingleOrDefault(c => c.Name == name);
         }
 
     }

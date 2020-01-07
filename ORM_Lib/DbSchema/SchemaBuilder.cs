@@ -34,6 +34,13 @@ namespace ORM_Lib.DbSchema
         {
             foreach (var entity in entities)
             {
+                // set parent for each column
+                foreach(var column in entity.Columns)
+                {
+                    column.Entity = entity;
+                }
+
+                // build relations 
                 foreach (var constraint in entity.Columns.SelectMany(column => column.Constraints))
                 {
                     if (typeof(Fk) == constraint.GetType())

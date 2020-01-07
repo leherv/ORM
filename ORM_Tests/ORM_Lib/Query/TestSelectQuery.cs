@@ -16,8 +16,8 @@ namespace ORM_Tests.ORM_Lib.Query
                 null,
                 new List<Column>() 
                 {
-                    new Column("column1", null, null, null, true),
-                    new Column("column2", null, null, null, true)
+                    new Column("column1", null, null, null, true, false),
+                    new Column("column2", null, null, null, true, false)
                 },
                 entity);
             Assert.AreEqual("SELECT column1, column2 FROM table_name;", selectQuery.BuildQuery());

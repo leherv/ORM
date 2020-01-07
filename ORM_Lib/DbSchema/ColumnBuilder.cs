@@ -14,6 +14,7 @@ namespace ORM_Lib.DbSchema
         {
             var manyToOneUsed = false;
             var isDbColumn = true;
+            var isShadowAttribute = false;
             var constraints = new HashSet<IConstraint>();
 
             foreach (var propertyInfoCustomAttribute in propertyInfo.GetCustomAttributes())
@@ -33,21 +34,24 @@ namespace ORM_Lib.DbSchema
                     var manyToMany = propertyInfoCustomAttribute as ManyToMany;
                     manyToMany.ToPocoType = propertyInfo.PropertyType.GetGenericArguments()[0];
                     isDbColumn = false;
+                    isShadowAttribute = true;
                     constraints.Add(manyToMany);
                 }
                 else if (propertyInfoCustomAttribute.GetType() == typeof(OneToMany))
                 {
                     var oneToMany = propertyInfoCustomAttribute as OneToMany;
                     oneToMany.MappedByPocoType = propertyInfo.PropertyType.GetGenericArguments()[0];
-                    constraints.Add(propertyInfoCustomAttribute as IConstraint);
                     isDbColumn = false;
+                    isShadowAttribute = true;
+                    constraints.Add(propertyInfoCustomAttribute as IConstraint);
                 }
                 else if (propertyInfoCustomAttribute.GetType() == typeof(ManyToOne))
                 {
                     var manyToOne = propertyInfoCustomAttribute as ManyToOne;
                     manyToOne.ToPocoType = propertyInfo.PropertyType;
-                    constraints.Add(manyToOne);
                     manyToOneUsed = true;
+                    constraints.Add(manyToOne);
+                    
                 }
             }
 
@@ -79,7 +83,8 @@ namespace ORM_Lib.DbSchema
                 constraints,
                 propertyInfo,
                 DbType(propertyInfo.PropertyType, tableTypes, constraints, typeMapper),
-                isDbColumn
+                isDbColumn,
+                isShadowAttribute
             );
         }
 
@@ -93,13 +98,15 @@ namespace ORM_Lib.DbSchema
                     new HashSet<IConstraint>() {new Fk(from)},
                     null,
                     typeMapper.GetForeignKeyType(),
-                    true),
+                    true,
+                    false), //TODO: did not think about false here
                 new Column(
                     m.ForeignKeyFar,
                     new HashSet<IConstraint>() {new Fk(to)},
                     null,
                     typeMapper.GetForeignKeyType(),
-                    true)
+                    true,
+                    false) //TODO: did not think about false here
             };
         }
 
@@ -111,7 +118,7 @@ namespace ORM_Lib.DbSchema
                 .Select(cA => cA?.CName)
                 .SingleOrDefault();
 
-            return string.IsNullOrEmpty(customName) ? t.Name : customName;
+            return string.IsNullOrEmpty(customName) ? t.Name.ToLower() : customName.ToLower();
         }
 
         private static string DbType(Type t, List<Type> tableTypes, HashSet<IConstraint> constraints, ITypeMapper typeMapper)

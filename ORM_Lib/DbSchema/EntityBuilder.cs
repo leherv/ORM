@@ -11,7 +11,11 @@ namespace ORM_Lib.DbSchema
     {
         public static Entity BuildEntity(Type tableType, IEnumerable<PropertyInfo> propertyInfos, List<Type> tableTypes, ITypeMapper typeMapper)
         {
+            // to handle inheritance
+            var superClasses = tableTypes.Where(t => t.IsAssignableFrom(tableType) && t != tableType).ToList();
             var propInfos = HandleInheritance(propertyInfos, tableType);
+
+
             if (!ContainsPk(propInfos)) throw new InvalidOperationException("Entity has no primary key");
             var columns = propInfos.Select(propInfo => ColumnBuilder.BuildColumn(propInfo, tableType, tableTypes, typeMapper)).ToList();
             // TODO: maybe return tuple of (PkColumn, Columns) in columnBuilder instead
@@ -20,7 +24,8 @@ namespace ORM_Lib.DbSchema
                 BuildEntityName(tableType),
                 columns,
                 tableType,
-                pkColumn
+                pkColumn,
+                superClasses
             );
         }
 
@@ -32,7 +37,7 @@ namespace ORM_Lib.DbSchema
                 .Select(cA => cA?.TName)
                 .SingleOrDefault();
 
-            return string.IsNullOrEmpty(customName) ? t.Name : customName;
+            return string.IsNullOrEmpty(customName) ? t.Name.ToLower() : customName.ToLower();
         }
 
         private static bool ContainsPk(IEnumerable<PropertyInfo> propertyInfos)

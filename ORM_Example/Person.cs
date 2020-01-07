@@ -17,5 +17,8 @@ namespace ORM_Example
             Gender = gender;
             BDay = bDay;
         }
+
+        //TODO: doc - every poco needs to have an empty constructor and only get sets! 
+        public Person() { }
     }
 }

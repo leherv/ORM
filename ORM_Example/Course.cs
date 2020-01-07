@@ -23,5 +23,7 @@ namespace ORM_Example
             Teacher = teacher;
             Students = students;
         }
+
+        public Course() { }
     }
 }

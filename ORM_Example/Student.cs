@@ -18,5 +18,7 @@ namespace ORM_Example
         {
             Courses = courses;
         }
+
+        public Student() { }
     }
 }

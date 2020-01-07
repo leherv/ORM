@@ -21,5 +21,7 @@ namespace ORM_Example
             Salary = salary;
             Courses = courses;
         }
+
+        public Teacher() { }
     }
 }
