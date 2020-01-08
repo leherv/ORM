@@ -9,6 +9,8 @@ namespace ORM_Lib.Query.Where
 
         string AsSqlString();
 
+        IEnumerable<NamedParameter> GetNamedParams();
+
 
 
     }

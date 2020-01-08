@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ORM_Lib.Query.Where
@@ -20,6 +21,11 @@ namespace ORM_Lib.Query.Where
         public string AsSqlString()
         {
             return $"{_tableAlias}.{_columnName}";
+        }
+
+        public IEnumerable<NamedParameter> GetNamedParams()
+        {
+            return Enumerable.Empty<NamedParameter>();
         }
     }
 }

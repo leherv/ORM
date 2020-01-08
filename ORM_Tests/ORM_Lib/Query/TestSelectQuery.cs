@@ -33,7 +33,7 @@ namespace ORM_Tests.ORM_Lib.Query
                 TestEntity,
                 TestColumns,
                 new List<WhereFilter>());
-            Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1;", selectQuery.BuildQuery());
+            Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1;", selectQuery.AsSqlString());
         }
 
 
@@ -51,8 +51,9 @@ namespace ORM_Tests.ORM_Lib.Query
                 TestEntity,
                 TestColumns,
                 new List<WhereFilter>() { whereFilter });
-            Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1 WHERE t1.column1 > @test;", selectQuery.BuildQuery());
+            Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1 WHERE t1.column1 > @test;", selectQuery.AsSqlString());
         }
+        
 
 
         [Test]
@@ -75,7 +76,7 @@ namespace ORM_Tests.ORM_Lib.Query
                 TestEntity,
                 TestColumns,
                 new List<WhereFilter>() { whereFilter, whereFilter2 });
-            Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1 WHERE t1.column1 > @test AND t1.column2 = @test2;", selectQuery.BuildQuery());
+            Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1 WHERE t1.column1 > @test AND t1.column2 = @test2;", selectQuery.AsSqlString());
         }
     }
 }

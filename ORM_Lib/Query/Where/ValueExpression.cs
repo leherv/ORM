@@ -24,5 +24,10 @@ namespace ORM_Lib.Query
         {
             return $"@{_alias}";
         }
+
+        public IEnumerable<NamedParameter> GetNamedParams()
+        {
+            yield return new NamedParameter(_alias, _value, _dbType);
+        }
     }
 }

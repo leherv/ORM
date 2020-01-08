@@ -1,6 +1,7 @@
 ﻿using ORM_Lib.Query.Where;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ORM_Lib.Query
@@ -17,6 +18,16 @@ namespace ORM_Lib.Query
             _left = left;
             _right = right;
             _operatorSymbol = operatorSymbol;
+        }
+
+        public string AsSqlString()
+        {
+            return $"{_left.AsSqlString()} {_operatorSymbol} {_right.AsSqlString()}";
+        }
+
+        public IEnumerable<NamedParameter> GetNamedParams()
+        {
+            return _left.GetNamedParams().Concat(_right.GetNamedParams());
         }
 
         public static BinaryExpression Eq(ISqlExpression left, ISqlExpression right)
@@ -58,9 +69,6 @@ namespace ORM_Lib.Query
             return new BinaryExpression(left, right, "OR");
         }
 
-        public string AsSqlString()
-        {
-            return $"{_left.AsSqlString()} {_operatorSymbol} {_right.AsSqlString()}";
-        }
+        
     }
 }

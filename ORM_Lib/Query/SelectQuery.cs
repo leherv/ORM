@@ -7,7 +7,7 @@ using ORM_Lib.Query.Where;
 namespace ORM_Lib.Query
 {
     // class is public because user has to be able to see it and execute - Execute | but he is not allowed to create an instance himself constructor internal
-    public class SelectQuery<T>
+    public class SelectQuery<T> : ISqlExpression
     {
         private DbContext _ctx;
         private List<Column> _combinedQueryColumns;
@@ -23,24 +23,11 @@ namespace ORM_Lib.Query
             _whereFilter = whereFilter;
         }
 
-
-        public string BuildQuery()
-        {
-            var query =
-                   $"SELECT {CommaSeparatedColumns()} " +
-                   $"FROM {BuildFrom()}";
-            if (_whereFilter.Count > 0)
-            {
-                query += $" WHERE {BuildWhere()}";
-            }
-            return query += ";";
-        }
-
         public IEnumerable<T> Execute()
         {
             Database db = _ctx.Database;
             // we send all the queriedColumns here to decide which to set on the object later
-            var result = db.ExecuteQuery<T>(BuildQuery(), _entityExecutedOn, _combinedQueryColumns);
+            var result = db.ExecuteQuery<T>(this, _entityExecutedOn, _combinedQueryColumns);
             return result;
         }
 
@@ -66,7 +53,24 @@ namespace ORM_Lib.Query
                 // isindb
                 .Select(w => $"{w.AsSqlString()}")
                 .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1} AND {c2}");
-            
+
+        }
+
+        public string AsSqlString()
+        {
+            var query =
+                   $"SELECT {CommaSeparatedColumns()} " +
+                   $"FROM {BuildFrom()}";
+            if (_whereFilter.Count > 0)
+            {
+                query += $" WHERE {BuildWhere()}";
+            }
+            return query += ";";
+        }
+
+        public IEnumerable<NamedParameter> GetNamedParams()
+        {
+            return _whereFilter.SelectMany(wF => wF.GetNamedParams());
         }
 
         private string CommaSeparatedColumns()
@@ -78,6 +82,7 @@ namespace ORM_Lib.Query
                 .Select(c => $"{(c.Entity.Alias)}.{c.Name}")
                 .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1}, {c2}");
         }
+
 
     }
 }

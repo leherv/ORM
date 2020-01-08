@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Deserialization;
+using ORM_Lib.Query;
 using System;
 using System.Collections.Generic;
 
@@ -44,12 +45,23 @@ namespace ORM_Lib
 
         }
 
-        public IEnumerable<T> ExecuteQuery<T>(String queryString, Entity entity, List<Column> combinedQueryColumns)
+        public IEnumerable<T> ExecuteQuery<T>(SelectQuery<T> query, Entity entity, List<Column> combinedQueryColumns)
         {
-         
+            //TODO: generalize to DbConnection and DbCommand 
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
-            using var command = new NpgsqlCommand(queryString, connection);
+            using var command = new NpgsqlCommand(query.AsSqlString(), connection);
+
+            foreach (var namedParam in query.GetNamedParams())
+            {
+                var parameter = command.CreateParameter();
+                parameter.Value = namedParam.Value;
+                parameter.DbType = namedParam.DbType;
+                parameter.ParameterName = namedParam.Alias;
+                command.Parameters.Add(parameter);
+            }
+
+
             var objectReader = new ObjectReader<T>(command.ExecuteReader(), entity, combinedQueryColumns);
             var result = objectReader.Serialize();
             connection.Close();

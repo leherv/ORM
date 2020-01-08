@@ -17,5 +17,10 @@ namespace ORM_Lib.Query.Where
         {
             return _sqlExpression.AsSqlString();
         }
+
+        public IEnumerable<NamedParameter> GetNamedParams()
+        {
+            return _sqlExpression.GetNamedParams();
+        }
     }
 }

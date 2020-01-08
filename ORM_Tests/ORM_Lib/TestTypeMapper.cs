@@ -131,9 +131,8 @@ namespace ORM_Tests.ORM_Lib
         [Test]
         public void TestEnum()
         {
-            var g = typeof(Gender);
-            Assert.AreEqual("text", _typeMapper.GetDbType(typeof(Gender)));
+            // enums have to be handled specifically in the application (they are always text but it is handled in the ColumnBuilder)
+            Assert.AreEqual(null, _typeMapper.GetDbType(typeof(Gender)));
         }
-
     }
 }
