@@ -2,29 +2,38 @@ using System.Collections.Generic;
 using System.Linq;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Deserialization;
+using ORM_Lib.Query.Where;
 
 namespace ORM_Lib.Query
 {
     // class is public because user has to be able to see it and execute - Execute | but he is not allowed to create an instance himself constructor internal
-    class SelectQuery<T>
+    public class SelectQuery<T>
     {
         private DbContext _ctx;
         private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
+        private List<WhereFilter> _whereFilter;
 
 
-        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns)
+        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns, List<WhereFilter> whereFilter)
         {
             _ctx = ctx;
             _entityExecutedOn = entityExecutedOn;
             _combinedQueryColumns = combinedQueryColumns;
+            _whereFilter = whereFilter;
         }
 
 
         public string BuildQuery()
         {
-
-            return $"SELECT {CommaSeparatedColumns()} FROM {BuildFrom()};";
+            var query =
+                   $"SELECT {CommaSeparatedColumns()} " +
+                   $"FROM {BuildFrom()}";
+            if (_whereFilter.Count > 0)
+            {
+                query += $" WHERE {BuildWhere()}";
+            }
+            return query += ";";
         }
 
         public IEnumerable<T> Execute()
@@ -49,6 +58,15 @@ namespace ORM_Lib.Query
             {
                 return $"{_entityExecutedOn.Name} {eAlias}";
             }
+        }
+
+        public string BuildWhere()
+        {
+            return _whereFilter
+                // isindb
+                .Select(w => $"{w.AsSqlString()}")
+                .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1} AND {c2}");
+            
         }
 
         private string CommaSeparatedColumns()

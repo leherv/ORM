@@ -131,6 +131,7 @@ namespace ORM_Tests.ORM_Lib
         [Test]
         public void TestEnum()
         {
+            var g = typeof(Gender);
             Assert.AreEqual("text", _typeMapper.GetDbType(typeof(Gender)));
         }
 

@@ -1,19 +1,19 @@
 using ORM_Lib.DbSchema;
+using ORM_Lib.Query.Where;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace ORM_Lib.Query
 {
-    class SelectQueryBuilder<T>
+    public class SelectQueryBuilder<T>
     {
         private string[] _queriedColumns;
         private Type _fromType;
         private DbContext _ctx;
         private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
-
-        private List<Func<bool>> whereLambdas = new List<Func<bool>>();
+        private List<WhereFilter> _whereFilter = new List<WhereFilter>();
 
         internal SelectQueryBuilder(DbContext ctx, string[] queriedColumns, Type fromType)
         {
@@ -41,9 +41,9 @@ namespace ORM_Lib.Query
             _combinedQueryColumns = columnsToQuery;
         }
 
-        public SelectQueryBuilder<T> Where(Func<bool> lambda)
+        public SelectQueryBuilder<T> Where(WhereFilter where)
         {
-            whereLambdas.Add(lambda);
+            _whereFilter.Add(where);
             return this;
         }
       
@@ -53,7 +53,8 @@ namespace ORM_Lib.Query
                 _ctx,
                 // TODO: doc either a string [] of columns to select or empty array to select all
                 _entityExecutedOn,
-                _combinedQueryColumns
+                _combinedQueryColumns,
+                _whereFilter
             ); 
 
 

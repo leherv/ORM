@@ -93,14 +93,14 @@ namespace ORM_Lib.DbSchema
                     m.ForeignKeyNear,
                     new HashSet<IConstraint>() {new Fk(from)},
                     null,
-                    typeMapper.GetForeignKeyType(),
+                    new OrmDbType(typeMapper.GetForeignKeyType(), PreparedStatementTypeMapper.Map(from)),
                     true
                 ),
                 new Column(
                     m.ForeignKeyFar,
                     new HashSet<IConstraint>() {new Fk(to)},
                     null,
-                    typeMapper.GetForeignKeyType(),
+                    new OrmDbType(typeMapper.GetForeignKeyType(), PreparedStatementTypeMapper.Map(from)),
                     true
                 )
             };
@@ -117,20 +117,23 @@ namespace ORM_Lib.DbSchema
             return string.IsNullOrEmpty(customName) ? t.Name.ToLower() : customName.ToLower();
         }
 
-        private static string DbType(Type t, List<Type> tableTypes, HashSet<IConstraint> constraints, ITypeMapper typeMapper)
+        private static OrmDbType DbType(Type t, List<Type> tableTypes, HashSet<IConstraint> constraints, ITypeMapper typeMapper)
         {
-            if (constraints.Any(c => c.GetType() == typeof(Pk))) return "serial";
-            if (t.IsEnum) return "text";
-            //was just to determine if valid but has no dbtype
-            //if (t.IsNonStringEnumerable()) t = t.GetGenericArguments()[0];  
-            var dbType = typeMapper.GetDbType(t);
-            if (!string.IsNullOrEmpty(dbType)) return dbType;
+            var ddlType = typeMapper.GetDbType(t);
             if (tableTypes.Any(tType => tType == t))
             {
-                dbType = typeMapper.GetForeignKeyType();
+                ddlType = typeMapper.GetForeignKeyType();
             }
+            if (constraints.Any(c => c.GetType() == typeof(Pk))) ddlType = "serial";
+            // because we always want to enforce enums to be text
+            if (t.IsEnum) ddlType = "text";
 
-            return dbType;
+            PreparedStatementTypeMapper.Map(t);
+
+            return new OrmDbType(
+                ddlType,
+                PreparedStatementTypeMapper.Map(t)
+            );
         }
     }
 }
