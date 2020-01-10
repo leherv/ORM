@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.Attributes;
 using ORM_Lib.DbSchema;
 using ORM_Lib.TypeMapper;
 
@@ -20,7 +20,7 @@ namespace ORM_Lib.Ddl
 
             ddlBuilder.AppendLine();
             BuildManyToMany(schema, ddlBuilder, typeMapper);
-            BuildConstraints(schema, ddlBuilder);
+            BuildConstraintsAndRelations(schema, ddlBuilder);
             return ddlBuilder.ToString();
         }
 
@@ -28,8 +28,8 @@ namespace ORM_Lib.Ddl
         {
             var manyToMany = schema.Entities
                 .SelectMany(e => e.Columns)
-                .SelectMany(cols => cols.Constraints)
-                .Where(constraint => constraint.GetType() == typeof(ManyToMany))
+                .SelectMany(cols => cols.Relations)
+                .Where(relation => relation.GetType() == typeof(ManyToMany))
                 .Select(m => m as ManyToMany)
                 .Distinct(new ManyToManyComparer())
                 .ToList();
@@ -40,44 +40,52 @@ namespace ORM_Lib.Ddl
             ddlBuilder.AppendLine();
             //TODO: maybe leave here - can not handle in BuildConstraints or it will be done twice
             manyToMany
-                .Select(m => BuildPrimaryKey(m.TableName, new[] {m.ForeignKeyFar, m.ForeignKeyNear}))
+                .Select(m => BuildPrimaryKey(m.TableName, new[] { m.ForeignKeyFar, m.ForeignKeyNear }))
                 .Aggregate(ddlBuilder, (builder, s) => builder.AppendLine(s + ";"));
         }
 
-        private static void BuildConstraints(Schema schema, StringBuilder ddlBuilder)
+        private static void BuildConstraintsAndRelations(Schema schema, StringBuilder ddlBuilder)
         {
             foreach (var entity in schema.Entities)
             {
                 foreach (var column in entity.Columns.Where(c => c.IsDbColumn))
                 {
+
+                    // constraints
+
                     foreach (var constraint in column.Constraints)
                     {
                         if (constraint.GetType() == typeof(Pk))
                         {
-                            ddlBuilder.AppendLine(BuildPrimaryKey(entity.Name, new[] {column.Name}) + ";");
+                            ddlBuilder.AppendLine(BuildPrimaryKey(entity.Name, new[] { column.Name }) + ";");
                         }
-                        else if (constraint.GetType() == typeof(Fk))
+                    }
+
+                    // now relations
+                    foreach (var relation in column.Relations)
+                    {
+                        if (relation.GetType() == typeof(Fk))
                         {
-                            var fk = constraint as Fk;
+                            var fk = relation as Fk;
                             ddlBuilder.AppendLine(BuildForeignKey(entity.Name,
                                                       $"fk_{fk.ToEntity.Name}_{fk.To.Name}",
                                                       column.Name,
                                                       fk.ToEntity.Name,
                                                       fk.To.Name) + ";");
                         }
-                        else if (constraint.GetType() == typeof(ManyToMany))
+                        else if (relation.GetType() == typeof(ManyToMany))
                         {
                             // ManyToMany has to occur twice so we always add constraint for foreign key near 
-                            var manyToMany = constraint as ManyToMany;
+                            var manyToMany = relation as ManyToMany;
                             ddlBuilder.AppendLine(BuildForeignKey(manyToMany.TableName,
                                                       $"fk_{entity.Name}_{entity.PkColumn.Name}",
                                                       manyToMany.ForeignKeyNear,
                                                       entity.Name,
                                                       entity.PkColumn.Name) + ";");
                         }
-                        else if (constraint.GetType() == typeof(ManyToOne))
+                        else if (relation.GetType() == typeof(ManyToOne))
                         {
-                            var manyToOne = constraint as ManyToOne;
+                            var manyToOne = relation as ManyToOne;
                             ddlBuilder.AppendLine(BuildForeignKey(entity.Name,
                                                       $"fk_{manyToOne.ToEntity.Name}_{manyToOne.To.Name}",
                                                       column.Name,

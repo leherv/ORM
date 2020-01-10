@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace ORM_Lib.Constraints_Attributes
+namespace ORM_Lib.Attributes
 {
-    public class ManyToManyComparer: IEqualityComparer<ManyToMany>
+    public class ManyToManyComparer : IEqualityComparer<ManyToMany>
     {
         public bool Equals(ManyToMany x, ManyToMany y)
         {

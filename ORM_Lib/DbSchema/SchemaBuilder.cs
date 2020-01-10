@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.Attributes;
 using ORM_Lib.Extensions;
 using ORM_Lib.TypeMapper;
 
@@ -42,19 +42,19 @@ namespace ORM_Lib.DbSchema
                 }
 
                 // build relations 
-                foreach (var constraint in entity.Columns.SelectMany(column => column.Constraints))
+                foreach (var relation in entity.Columns.SelectMany(col => col.Relations))
                 {
-                    if (typeof(Fk) == constraint.GetType())
+                    if (typeof(Fk) == relation.GetType())
                     {
-                        var fk = constraint as Fk;
+                        var fk = relation as Fk;
                         var toType = fk.ToPocoType;
                         var toEntity = entities.First(e => e.PocoType == toType);
                         fk.ToEntity = toEntity;
                         fk.To = toEntity.PkColumn;
                     }
-                    else if (typeof(OneToMany) == constraint.GetType())
+                    else if (typeof(OneToMany) == relation.GetType())
                     {
-                        var oneToMany = constraint as OneToMany;
+                        var oneToMany = relation as OneToMany;
                         var mappingEntity = entities.First(e => e.PocoType == oneToMany.MappedByPocoType);
                         oneToMany.MappedByEntity = mappingEntity;
 //                      get the Column with the ManyToOne annotation - if we dont find exactly one we can throw because something is seriously wrong
@@ -62,17 +62,17 @@ namespace ORM_Lib.DbSchema
                         oneToMany.MappedByProperty = mappingEntity.Columns
                             .Single(c => c.PropInfo.PropertyType == entity.PocoType).PropInfo;
                     }
-                    else if (typeof(ManyToOne) == constraint.GetType())
+                    else if (typeof(ManyToOne) == relation.GetType())
                     {
-                        var manyToOne = constraint as ManyToOne;
+                        var manyToOne = relation as ManyToOne;
                         var toType = manyToOne.ToPocoType;
                         var toEntity = entities.First(e => e.PocoType == toType);
                         manyToOne.ToEntity = toEntity;
                         manyToOne.To = toEntity.PkColumn;
                     }
-                    else if (typeof(ManyToMany) == constraint.GetType())
+                    else if (typeof(ManyToMany) == relation.GetType())
                     {
-                        var manyToMany = constraint as ManyToMany;
+                        var manyToMany = relation as ManyToMany;
                         var toType = manyToMany.ToPocoType;
                         var toEntity = entities.First(e => e.PocoType == toType);
                         manyToMany.ToEntity = toEntity;

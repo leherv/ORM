@@ -1,16 +1,16 @@
 using System;
 using ORM_Lib.DbSchema;
 
-namespace ORM_Lib.Constraints_Attributes
+namespace ORM_Lib.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class ManyToOne : Attribute, IConstraint
+    public class ManyToOne : Relation
     {
         internal Column To { get; set; }
-        
+
         internal Entity ToEntity { get; set; }
         public Type ToPocoType { get; set; }
-        
+
     }
 }
 

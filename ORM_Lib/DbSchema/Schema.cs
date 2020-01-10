@@ -16,6 +16,7 @@ namespace ORM_Lib.DbSchema
             Entities = new ReadOnlyCollection<Entity>(entities);
             entities.ForEach(entity =>
             {
+                entity.Schema = this;
                 _entitiesByName.Add(entity.Name, entity);
                 _entitiesByType.Add(entity.PocoType, entity);
             });

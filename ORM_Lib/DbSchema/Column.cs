@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
-using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.Attributes;
 using ORM_Lib.TypeMapper;
 
 namespace ORM_Lib.DbSchema
@@ -14,12 +14,16 @@ namespace ORM_Lib.DbSchema
         public Entity Entity { get; set; }
         public OrmDbType DbType { get; set; }
         public string Name { get; set; }
-        public HashSet<IConstraint> Constraints { get; set; }
+        public HashSet<Constraint> Constraints { get; set; }
+
+        public HashSet<Relation> Relations { get; set; }
 
 
-        public Column(string cName, HashSet<IConstraint> constraints, PropertyInfo propInfo, OrmDbType dbType, bool isShadowAttribute)
+        public Column(string cName, HashSet<Relation> relations, HashSet<Constraint> constraints, PropertyInfo propInfo, OrmDbType dbType, bool isShadowAttribute)
         {
+            Relations = Relations;
             Name = cName;
+            Relations = relations;
             Constraints = constraints;
             PropInfo = propInfo;
             DbType = dbType;

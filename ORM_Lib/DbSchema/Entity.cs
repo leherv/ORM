@@ -18,6 +18,8 @@ namespace ORM_Lib.DbSchema
 
         public string Alias { get; set; }
 
+        public Schema Schema { get; set; }
+
         public Entity(string eName, List<Column> columns, Type pocoType, Column pkColumn, List<Type> superClasses, int aliasNumber)
         {
             Name = eName;

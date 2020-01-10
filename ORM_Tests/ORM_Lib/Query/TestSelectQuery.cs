@@ -17,9 +17,9 @@ namespace ORM_Tests.ORM_Lib.Query
         public void Setup()
         {
             TestEntity = new Entity("table_name", new List<Column>(), typeof(TestEntity), null, new List<System.Type>(), 1);
-            var col1 = new Column("column1", null, null, new OrmDbType("text", PreparedStatementTypeMapper.Map(typeof(string))), false);
+            var col1 = new Column("column1", null, null, null, new OrmDbType("text", PreparedStatementTypeMapper.Map(typeof(string))), false);
             col1.Entity = TestEntity;
-            var col2 = new Column("column2", null, null, new OrmDbType("text", PreparedStatementTypeMapper.Map(typeof(string))), false);
+            var col2 = new Column("column2", null, null, null, new OrmDbType("text", PreparedStatementTypeMapper.Map(typeof(string))), false);
             col2.Entity = TestEntity;
             TestColumns = new List<Column>() { col1, col2 };
         }

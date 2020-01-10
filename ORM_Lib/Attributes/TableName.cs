@@ -1,9 +1,9 @@
 using System;
 
-namespace ORM_Lib.Constraints_Attributes
+namespace ORM_Lib.Attributes
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class TableName: Attribute
+    public class TableName : Constraint
     {
         public string TName { get; set; }
         public TableName(string name)

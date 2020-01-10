@@ -10,5 +10,11 @@ VALUES
 
 INSERT INTO class(name, teacher) VALUES ('1A', 1);     
 
+INSERT INTO course(active, name, teacher)
+VALUES
+(TRUE, 'best course', 1);
 
-SELECT custom_name, id FROM person p1 JOIN custom_name c2 ON p1.id = c2.id  
+
+SELECT custom_name, id FROM person p1 JOIN custom_name c2 ON p1.id = c2.id;
+
+SELECT * FROM course c1 WHERE c1.teacher = 1;

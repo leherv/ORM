@@ -1,6 +1,6 @@
 using System.Linq;
 using System.Text;
-using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.Attributes;
 using ORM_Lib.DbSchema;
 using ORM_Lib.TypeMapper;
 

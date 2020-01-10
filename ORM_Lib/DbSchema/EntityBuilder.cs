@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.Attributes;
 using ORM_Lib.TypeMapper;
 
 namespace ORM_Lib.DbSchema

@@ -1,14 +1,23 @@
 using System;
 using System.Collections.Generic;
-using ORM_Lib.Constraints_Attributes;
+using ORM_Lib.Attributes;
+using ORM_Lib.Cache;
 
 namespace ORM_Example
 {
     public class Student : Person
     {
+        private ILazyLoader LazyLoader { get; set; } = new LazyLoader();
+
         [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_course_id", ForeignKeyFar = "fk_person_id")]
-        public List<Course> Courses { get; set; }
-        
+        public List<Course> Courses
+        {
+            get => LazyLoader.Load(this, ref _courses);
+            set => _courses = value;
+        }
+
+        private List<Course> _courses;
+
         [ManyToOne]
         public Class Class { get; set; }
 

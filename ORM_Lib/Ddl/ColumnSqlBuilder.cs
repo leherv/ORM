@@ -7,7 +7,7 @@ namespace ORM_Lib.Ddl
     {
         public static string BuildDdl(Column column)
         {
-            return $"{column.Name} {column.DbType}";
+            return $"{column.Name} {column.DbType.DdlDbType}";
         }
 
         public static string BuildManyToManyDdl(string fkName, ITypeMapper typeMapper)

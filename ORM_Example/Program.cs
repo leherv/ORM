@@ -18,7 +18,7 @@ namespace ORM_Example
             //var partialPersons = dbContext.Persons.Select(new[] { "name", "firstname" }).Build().Execute();
 
 
-            var teachers = dbContext.Teachers.Select(new string[] { }).Build().Execute();
+            //var teachers = dbContext.Teachers.Select(new string[] { }).Build().Execute();
 
 
         }
