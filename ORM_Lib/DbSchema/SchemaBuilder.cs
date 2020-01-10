@@ -42,7 +42,7 @@ namespace ORM_Lib.DbSchema
                 }
 
                 // build relations 
-                foreach (var relation in entity.Columns.SelectMany(col => col.Relations))
+                foreach (var relation in entity.Columns.Select(col => col.Relation).Where(relation => relation != null))
                 {
                     if (typeof(Fk) == relation.GetType())
                     {

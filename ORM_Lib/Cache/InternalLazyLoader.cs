@@ -1,4 +1,5 @@
-﻿using ORM_Lib.DbSchema;
+﻿using ORM_Lib.Attributes;
+using ORM_Lib.DbSchema;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -23,7 +24,7 @@ namespace ORM_Lib.Cache
 
         public ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo)
         {
-            //_column.Constraints.
+            //if(_column.Relations.GetEnumerator().Current.GetType == typeof(OneToMany))
             return null;
 
         }

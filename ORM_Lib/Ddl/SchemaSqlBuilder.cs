@@ -20,7 +20,7 @@ namespace ORM_Lib.Ddl
 
             ddlBuilder.AppendLine();
             BuildManyToMany(schema, ddlBuilder, typeMapper);
-            BuildConstraintsAndRelations(schema, ddlBuilder);
+            BuildConstraintsAndRelation(schema, ddlBuilder);
             return ddlBuilder.ToString();
         }
 
@@ -28,8 +28,8 @@ namespace ORM_Lib.Ddl
         {
             var manyToMany = schema.Entities
                 .SelectMany(e => e.Columns)
-                .SelectMany(cols => cols.Relations)
-                .Where(relation => relation.GetType() == typeof(ManyToMany))
+                .Select(cols => cols.Relation)
+                .Where(relation => relation?.GetType() == typeof(ManyToMany))
                 .Select(m => m as ManyToMany)
                 .Distinct(new ManyToManyComparer())
                 .ToList();
@@ -44,7 +44,7 @@ namespace ORM_Lib.Ddl
                 .Aggregate(ddlBuilder, (builder, s) => builder.AppendLine(s + ";"));
         }
 
-        private static void BuildConstraintsAndRelations(Schema schema, StringBuilder ddlBuilder)
+        private static void BuildConstraintsAndRelation(Schema schema, StringBuilder ddlBuilder)
         {
             foreach (var entity in schema.Entities)
             {
@@ -61,8 +61,9 @@ namespace ORM_Lib.Ddl
                         }
                     }
 
-                    // now relations
-                    foreach (var relation in column.Relations)
+                    // now relation
+                    var relation = column.Relation;
+                    if (relation != null)
                     {
                         if (relation.GetType() == typeof(Fk))
                         {

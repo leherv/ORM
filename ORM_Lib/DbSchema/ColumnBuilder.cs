@@ -16,7 +16,7 @@ namespace ORM_Lib.DbSchema
             var isShadowAttribute = false;
             var manyToOneUsed = false;
             var constraints = new HashSet<Constraint>();
-            var relations = new HashSet<Relation>();
+            Relation relation = null;
 
             foreach (var propertyInfoCustomAttribute in propertyInfo.GetCustomAttributes())
             {
@@ -27,29 +27,30 @@ namespace ORM_Lib.DbSchema
                     // if its a primary key and it is a subclass then the teacher for example is also a person and needs a foreignkey on the personclass primary id
                     if (superClass.Any())
                     {
-                        relations.Add(new Fk(superClass.First()));
+                        relation = new Fk(superClass.First());
                     }
                 }
                 else if (propertyInfoCustomAttribute.GetType() == typeof(ManyToMany))
                 {
                     var manyToMany = propertyInfoCustomAttribute as ManyToMany;
                     manyToMany.ToPocoType = propertyInfo.PropertyType.GetGenericArguments()[0];
-                    relations.Add(manyToMany);
+                    relation = manyToMany;
                 }
                 else if (propertyInfoCustomAttribute.GetType() == typeof(OneToMany))
                 {
                     var oneToMany = propertyInfoCustomAttribute as OneToMany;
                     oneToMany.MappedByPocoType = propertyInfo.PropertyType.GetGenericArguments()[0];
-                    relations.Add(propertyInfoCustomAttribute as Relation);
+                    relation = propertyInfoCustomAttribute as Relation;
                 }
                 else if (propertyInfoCustomAttribute.GetType() == typeof(ManyToOne))
                 {
                     var manyToOne = propertyInfoCustomAttribute as ManyToOne;
                     manyToOne.ToPocoType = propertyInfo.PropertyType;
                     manyToOneUsed = true;
-                    relations.Add(manyToOne);
+                    relation = manyToOne;
                     isShadowAttribute = true;
-                } else
+                }
+                else
                 {
                     constraints.Add(propertyInfoCustomAttribute as Constraint);
                 }
@@ -62,7 +63,7 @@ namespace ORM_Lib.DbSchema
                 var superClass = tableTypes.Where(tableType.IsSubclassOf).ToList();
                 if (superClass.Any())
                 {
-                    relations.Add(new Fk(superClass.First()));
+                    relation = new Fk(superClass.First());
                 }
             }
 
@@ -74,13 +75,13 @@ namespace ORM_Lib.DbSchema
                 var oneToOne = tableTypes.Where(tType => propertyInfo.PropertyType == tType).ToList();
                 if (oneToOne.Any())
                 {
-                    relations.Add(new Fk(oneToOne.First()));
+                    relation = new Fk(oneToOne.First());
                 }
             }
 
             return new Column(
                 BuildColumnName(propertyInfo),
-                relations,
+                relation,
                 constraints,
                 propertyInfo,
                 DbType(propertyInfo.PropertyType, tableTypes, constraints, typeMapper),
@@ -95,7 +96,7 @@ namespace ORM_Lib.DbSchema
             {
                 new Column(
                     m.ForeignKeyNear,
-                    new HashSet<Relation>() {new Fk(from)},
+                    new Fk(from),
                     new HashSet<Constraint>(),
                     null,
                     new OrmDbType(typeMapper.GetForeignKeyType(), PreparedStatementTypeMapper.Map(from)),
@@ -103,7 +104,7 @@ namespace ORM_Lib.DbSchema
                 ),
                 new Column(
                     m.ForeignKeyFar,
-                    new HashSet<Relation>() {new Fk(to)},
+                    new Fk(to),
                     new HashSet<Constraint>(),
                     null,
                     new OrmDbType(typeMapper.GetForeignKeyType(), PreparedStatementTypeMapper.Map(from)),

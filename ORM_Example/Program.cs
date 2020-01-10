@@ -13,14 +13,12 @@ namespace ORM_Example
         {
             var dbContext = new ExampleDbContext();
 
-            //var persons = dbContext.Persons.Select(new string[] { }).Build().Execute();
+            var persons = dbContext.Persons.Select(new string[] { }).Build().Execute();
             //var persons = dbContext.Persons.Select(null).Build().Execute();
             //var partialPersons = dbContext.Persons.Select(new[] { "name", "firstname" }).Build().Execute();
 
 
             //var teachers = dbContext.Teachers.Select(new string[] { }).Build().Execute();
-
-
         }
     }
 }

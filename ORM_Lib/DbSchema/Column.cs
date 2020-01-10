@@ -16,14 +16,13 @@ namespace ORM_Lib.DbSchema
         public string Name { get; set; }
         public HashSet<Constraint> Constraints { get; set; }
 
-        public HashSet<Relation> Relations { get; set; }
+        public Relation Relation { get; set; }
 
 
-        public Column(string cName, HashSet<Relation> relations, HashSet<Constraint> constraints, PropertyInfo propInfo, OrmDbType dbType, bool isShadowAttribute)
+        public Column(string cName, Relation relation, HashSet<Constraint> constraints, PropertyInfo propInfo, OrmDbType dbType, bool isShadowAttribute)
         {
-            Relations = Relations;
             Name = cName;
-            Relations = relations;
+            Relation = relation;
             Constraints = constraints;
             PropInfo = propInfo;
             DbType = dbType;
