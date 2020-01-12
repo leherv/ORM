@@ -1,8 +1,10 @@
-﻿using ORM_Lib.DbSchema;
+﻿using ORM_Lib.Cache;
+using ORM_Lib.DbSchema;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 
 namespace ORM_Lib.Deserialization
@@ -15,11 +17,14 @@ namespace ORM_Lib.Deserialization
 
         private List<Column> QueriedColumns { get; }
 
-        public ObjectReader(DbDataReader dataReader, Entity entity, List<Column> queriedColumns)
+        private DbContext _ctx;
+
+        public ObjectReader(DbContext ctx, DbDataReader dataReader, Entity entity, List<Column> queriedColumns)
         {
             DataReader = dataReader;
             Entity = entity;
             QueriedColumns = queriedColumns;
+            _ctx = ctx;
         }
 
 
@@ -33,27 +38,60 @@ namespace ORM_Lib.Deserialization
             return result;
         }
 
-
-        //TODO: dont forget that inheritance needs to fetch columns from superclass too and leave Pk out
+        // we always refill the object with the current values from the DB even if we find the object (via PK in our cache)
+        // as the expensive operation (fetching from DB is already done) through the cache we just ensure object identity
         private T CreateObject(IDataReader reader)
         {
+            // create a new one of T
             var poco = ObjectFactory.Create(Entity.PocoType);
-            //TODO: why cant i use LINQ here
+            var cache = _ctx.Cache;
+            var pkValue = reader[Entity.PkColumn.Name];
+            // we now get a new empty cacheEntry or it already was present
+            var cacheEntry = cache.GetOrInsert(Entity, (long)pkValue, poco);
+
             foreach (var col in QueriedColumns)
             {
                 if (col.IsDbColumn)
                 {
-                    var value = reader[col.Name];
-                    // specially handle enums
-                    // TODO: doc enums will always be stored as strings
-                    if (col.PropInfo.PropertyType.IsEnum)
+                    if (col.IsShadowAttribute)
                     {
-                        value = Enum.Parse(col.PropInfo.PropertyType, value as string);
+                        // foreign key / ManyToOne (exists in db and in object, but is a key - can not be set directly and needs to be lazily loaded)
+                        cacheEntry.ShadowAttributes.Add(col.Name, reader[col.Name]);
                     }
-                    col.PropInfo.SetMethod.Invoke(poco, new[] { value });
+                    else
+                    {
+                        var value = reader[col.Name];
+                        // specially handle enums
+                        // TODO: doc enums will always be stored as strings
+                        if (col.PropInfo.PropertyType.IsEnum)
+                        {
+                            value = Enum.Parse(col.PropInfo.PropertyType, value as string);
+                        }
+                        // fill the originalEntries with values for changeTracking later
+                        if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
+                        // fill the object from the cache with values
+                        col.PropInfo.GetSetMethod(true).Invoke(cacheEntry.Poco, new[] { value });
+                    }
+
+
                 }
             }
-            return (T)poco;
+            // instantiate the inner lazy loader in the object
+            InjectLazyLoader(cacheEntry.Poco);
+            return (T)cacheEntry.Poco;
+        }
+
+        public void InjectLazyLoader(object poco)
+        {
+            var type = typeof(T);
+            var lazyLoaderProperty = type
+                .GetProperties(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .FirstOrDefault(p => p.PropertyType.IsAssignableFrom(typeof(ILazyLoader)));
+            // if it is null we dont have a ladyloader in this object and dont need to do more
+            if (lazyLoaderProperty != null)
+            {
+                lazyLoaderProperty.GetSetMethod(true).Invoke(poco, new object[] { new InternalLazyLoader(_ctx, Entity) });
+            }
         }
     }
 }

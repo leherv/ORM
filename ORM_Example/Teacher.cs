@@ -13,21 +13,21 @@ namespace ORM_Example
         [ColumnName("Custom_name")]
         public int Salary { get; set; }
 
-        [OneToMany]
-        public List<Course> Courses
+        [OneToMany(mappedByColumnName ="teacher")]
+        public ICollection<Course> Courses
         {
             get => LazyLoader.Load(this, ref _courses);
             set => _courses = value;
         }
-        private List<Course> _courses;
+        private ICollection<Course> _courses;
 
-        [OneToMany]
-        public List<Class> Classes
+        [OneToMany(mappedByColumnName ="teacher")]
+        public ICollection<Class> Classes
         {
             get => LazyLoader.Load(this, ref _classes);
             set => _classes = value;
         }
-        private List<Class> _classes;
+        private ICollection<Class> _classes;
 
         public Teacher(string name, string firstName, Gender gender, DateTime bDay, int salary, List<Course> courses) : base(name, firstName, gender, bDay)
         {

@@ -45,6 +45,10 @@ namespace ORM_Lib.TypeMapper
                 {typeof(DateTimeOffset?), DbType.DateTimeOffset}
         };
 
+        public static DbType GetForeignKeyType()
+        {
+            return DbType.Int64;
+        }
 
         public static DbType Map(Type t)
         {

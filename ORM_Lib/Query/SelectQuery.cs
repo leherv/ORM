@@ -12,10 +12,10 @@ namespace ORM_Lib.Query
         private DbContext _ctx;
         private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
-        private List<WhereFilter> _whereFilter;
+        private List<IWhereFilter> _whereFilter;
 
 
-        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns, List<WhereFilter> whereFilter)
+        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns, List<IWhereFilter> whereFilter)
         {
             _ctx = ctx;
             _entityExecutedOn = entityExecutedOn;

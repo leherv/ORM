@@ -46,7 +46,12 @@ namespace ORM_Lib.TypeMapper
             TypeMap.TryGetValue(type, out var a);
             return a;
         }
-
         public string GetForeignKeyType() => "integer";
+
+        public string GetEnumType() => "text";
+
+        public string GetPrimaryKeyType() => "bigserial";
+
+
     }
 }

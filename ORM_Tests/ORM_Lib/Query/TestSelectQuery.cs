@@ -32,7 +32,7 @@ namespace ORM_Tests.ORM_Lib.Query
                 null,
                 TestEntity,
                 TestColumns,
-                new List<WhereFilter>());
+                new List<IWhereFilter>());
             Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1;", selectQuery.AsSqlString());
         }
 
@@ -44,13 +44,11 @@ namespace ORM_Tests.ORM_Lib.Query
                 new ColumnExpression(TestEntity.Alias, "column1"),
                 new ValueExpression("test", 5, PreparedStatementTypeMapper.Map(typeof(int)))
             );
-            var whereFilter = new WhereFilter(where);
-
             var selectQuery = new SelectQuery<TestEntity>(
                 null,
                 TestEntity,
                 TestColumns,
-                new List<WhereFilter>() { whereFilter });
+                new List<IWhereFilter>() { where });
             Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1 WHERE t1.column1 > @test;", selectQuery.AsSqlString());
         }
         
@@ -67,15 +65,11 @@ namespace ORM_Tests.ORM_Lib.Query
                 new ColumnExpression(TestEntity.Alias, "column2"),
                 new ValueExpression("test2", "hallo", PreparedStatementTypeMapper.Map(typeof(string)))
             );
-
-            var whereFilter = new WhereFilter(where);
-            var whereFilter2 = new WhereFilter(where2);
-
             var selectQuery = new SelectQuery<TestEntity>(
                 null,
                 TestEntity,
                 TestColumns,
-                new List<WhereFilter>() { whereFilter, whereFilter2 });
+                new List<IWhereFilter>() { where, where2 });
             Assert.AreEqual("SELECT t1.column1, t1.column2 FROM table_name t1 WHERE t1.column1 > @test AND t1.column2 = @test2;", selectQuery.AsSqlString());
         }
     }

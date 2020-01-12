@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ORM_Lib.Query
 {
-    class BinaryExpression : ISqlExpression
+    public class BinaryExpression : IWhereFilter
     {
 
         private ISqlExpression _left;

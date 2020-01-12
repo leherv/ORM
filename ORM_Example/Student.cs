@@ -10,16 +10,20 @@ namespace ORM_Example
         private ILazyLoader LazyLoader { get; set; } = new LazyLoader();
 
         [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_course_id", ForeignKeyFar = "fk_person_id")]
-        public List<Course> Courses
+        public ICollection<Course> Courses
         {
             get => LazyLoader.Load(this, ref _courses);
             set => _courses = value;
         }
-
-        private List<Course> _courses;
+        private ICollection<Course> _courses;
 
         [ManyToOne]
-        public Class Class { get; set; }
+        public Class Class
+        {
+            get => LazyLoader.Load(this, ref _class);
+            set => _class = value;
+        }
+        private Class _class;
 
         public Student(string name, string firstName, Gender gender, DateTime bDay, List<Course> courses) : base(name,
             firstName, gender,

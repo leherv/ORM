@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ORM_Lib.Query
 {
-    class ValueExpression : ISqlExpression
+    public class ValueExpression : ISqlExpression
     {
 
         private DbType _dbType;

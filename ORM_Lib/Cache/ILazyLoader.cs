@@ -10,7 +10,7 @@ namespace ORM_Lib.Cache
     // ref means passing by reference so you can also set the variable to a new value (by reference not value reference)
     public interface ILazyLoader
     {
-        ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo);
-        T Load<T>(object poco, ref T loadTo);
+        ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo, [CallerMemberName] string name = "");
+        T Load<T>(object poco, ref T loadTo, [CallerMemberName] string name = "");
     }
 }

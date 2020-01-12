@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ORM_Lib.Attributes;
 using ORM_Lib.Cache;
 
@@ -6,13 +6,14 @@ namespace ORM_Example
 {
     public class Course
     {
-
         private ILazyLoader LazyLoader { get; set; } = new LazyLoader();
 
         [Pk]
         public long OtherNameThanId { get; set; }
-        public bool Active { get; }
-        public string Name { get; }
+        public string Name { get; set; }
+
+        public bool Active { get; set; }
+
 
         [ManyToOne]
         public Teacher Teacher
@@ -23,17 +24,16 @@ namespace ORM_Example
         private Teacher _teacher;
 
         [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_person_id", ForeignKeyFar = "fk_course_id")]
-        public List<Student> Students
+        public ICollection<Student> Students
         {
             get => LazyLoader.Load(this, ref _students);
             set => _students = value;
         }
-        private List<Student> _students;
+        private ICollection<Student> _students;
 
-        public Course(bool active, string name, Teacher teacher, List<Student> students)
+        public Course(bool active, Teacher teacher, List<Student> students)
         {
             Active = active;
-            Name = name;
             Teacher = teacher;
             Students = students;
         }

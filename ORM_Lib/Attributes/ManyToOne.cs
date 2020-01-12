@@ -9,7 +9,7 @@ namespace ORM_Lib.Attributes
         internal Column To { get; set; }
 
         internal Entity ToEntity { get; set; }
-        public Type ToPocoType { get; set; }
+        internal Type ToPocoType { get; set; }
 
     }
 }

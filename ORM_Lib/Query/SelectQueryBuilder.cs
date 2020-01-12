@@ -13,7 +13,7 @@ namespace ORM_Lib.Query
         private DbContext _ctx;
         private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
-        private List<WhereFilter> _whereFilter = new List<WhereFilter>();
+        private List<IWhereFilter> _whereFilter = new List<IWhereFilter>();
 
         internal SelectQueryBuilder(DbContext ctx, string[] queriedColumns, Type fromType)
         {
@@ -28,11 +28,11 @@ namespace ORM_Lib.Query
         {
             //TODO: doc if columns is empty all columns will be used!
             var columnsToQuery = (_queriedColumns != null && _queriedColumns.Length > 0) ? _queriedColumns.Select(c => _entityExecutedOn.GetColumnByName(c)).ToList() : _entityExecutedOn.Columns;
-            var entity = _ctx.Schema.GetByType(_fromType);
+            var entity = _entityExecutedOn;
             if (entity.SuperClasses.Any())
             {
                 var superEntity = entity.SuperClasses.Select(superCl => _ctx.Schema.GetByType(superCl)).First();
-                if (_queriedColumns != null && _queriedColumns.Length <= 0)
+                if (_queriedColumns == null || _queriedColumns.Length <= 0)
                 {
                     columnsToQuery.AddRange(superEntity.Columns);
                 }
@@ -41,7 +41,7 @@ namespace ORM_Lib.Query
             _combinedQueryColumns = columnsToQuery;
         }
 
-        public SelectQueryBuilder<T> Where(WhereFilter where)
+        public SelectQueryBuilder<T> Where(IWhereFilter where)
         {
             _whereFilter.Add(where);
             return this;

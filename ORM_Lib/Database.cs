@@ -11,11 +11,12 @@ namespace ORM_Lib
     {
 
         private String _connectionString;
+        private DbContext _ctx;
 
-        public Database(String connectionString)
+        public Database(String connectionString, DbContext ctx)
         {
             _connectionString = connectionString;
-      
+            _ctx = ctx;
         }
 
         public int ExecuteDDL(String ddlString)
@@ -62,7 +63,7 @@ namespace ORM_Lib
             }
 
 
-            var objectReader = new ObjectReader<T>(command.ExecuteReader(), entity, combinedQueryColumns);
+            var objectReader = new ObjectReader<T>(_ctx, command.ExecuteReader(), entity, combinedQueryColumns);
             var result = objectReader.Serialize();
             connection.Close();
             return result;

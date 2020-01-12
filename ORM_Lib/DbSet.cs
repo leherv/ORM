@@ -17,5 +17,7 @@ namespace ORM_Lib
         }
 
         public abstract SelectQueryBuilder<T> Select(string[] columns);
+        public abstract void Add(T poco);
+
     }
 }

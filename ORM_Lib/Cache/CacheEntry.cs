@@ -8,11 +8,16 @@ namespace ORM_Lib.Cache
     {
 
         public object Poco { get; }
+        public Dictionary<string, object> OriginalPoco = new Dictionary<string, object>();
+        public Dictionary<string, object> ShadowAttributes = new Dictionary<string, object>();
 
         public CacheEntry(object poco)
         {
             Poco = poco;
         }
+
+
+        
 
 
 

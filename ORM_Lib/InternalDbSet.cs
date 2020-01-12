@@ -12,6 +12,11 @@ namespace ORM_Lib
         {
         }
 
+        public override void Add(T poco)
+        {
+            throw new NotImplementedException();
+        }
+
         public override SelectQueryBuilder<T> Select(string[] columns)
         {
             return new SelectQueryBuilder<T>(_ctx, columns, typeof(T));

@@ -25,12 +25,17 @@ namespace ORM_Lib
             var types = Types(propertyInfos).ToList();
             BuildDbSets(propertyInfos, types);
             Schema = BuildSchema(types, Configuration.TypeMapper);
-            Database = new Database(Configuration.ConnectionString);
+            Database = new Database(Configuration.ConnectionString, this);
 
             if(Configuration.CreateDB)
             {
                 var rows = Database.ExecuteDDL(Ddl.SchemaSqlBuilder.BuildDdl(Schema, Configuration.TypeMapper));
             }
+        }
+
+        public void SaveChanges()
+        {
+            throw new NotImplementedException();
         }
         
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)

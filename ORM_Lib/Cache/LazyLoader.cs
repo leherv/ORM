@@ -9,7 +9,7 @@ namespace ORM_Lib.Cache
     public class LazyLoader : ILazyLoader
     {
         internal ILazyLoader InternalLazyLoader { get; set; }
-        public ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo)
+        public ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo, [CallerMemberName] string name = "")
         {
             // user uses his own collection without database or it was already loaded
             if (loadTo != null) return loadTo;
@@ -17,9 +17,9 @@ namespace ORM_Lib.Cache
 
         }
 
-        public T Load<T>(object poco, ref T loadTo)
+        public T Load<T>(object poco, ref T loadTo, [CallerMemberName] string name = "")
         {
-            throw new NotImplementedException();
+            return (T)new object();
         }
     }
 }

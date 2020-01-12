@@ -1,13 +1,13 @@
-﻿using System;
+﻿using ORM_Lib.DbSchema;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace ORM_Lib.Query.Where
 {
-    class ColumnExpression : ISqlExpression
+    public class ColumnExpression : ISqlExpression
     {
-
 
         private string _tableAlias;
         private string _columnName;

@@ -9,15 +9,15 @@ namespace ORM_Example
         private ILazyLoader LazyLoader { get; set; } = new LazyLoader();
 
         public long Id { get; set; }
-        public string Name { get; }
+        public string Name { get; set; }
 
-        [OneToMany]
-        public List<Student> Students
+        [OneToMany(mappedByColumnName = "class")]
+        public ICollection<Student> Students
         {
             get => LazyLoader.Load(this, ref _students);
             set => _students = value;
         }
-        private List<Student> _students;
+        private ICollection<Student> _students;
 
         [ManyToOne]
         public Teacher Teacher

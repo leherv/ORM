@@ -18,6 +18,7 @@ namespace ORM_Lib.DbSchema
             var constraints = new HashSet<Constraint>();
             Relation relation = null;
 
+            // TODO: FK are not handled at all?!
             foreach (var propertyInfoCustomAttribute in propertyInfo.GetCustomAttributes())
             {
                 if (propertyInfoCustomAttribute.GetType() == typeof(Pk))
@@ -127,19 +128,19 @@ namespace ORM_Lib.DbSchema
         private static OrmDbType DbType(Type t, List<Type> tableTypes, HashSet<Constraint> constraints, ITypeMapper typeMapper)
         {
             var ddlType = typeMapper.GetDbType(t);
+            var pstmtType = PreparedStatementTypeMapper.Map(t);
             if (tableTypes.Any(tType => tType == t))
             {
                 ddlType = typeMapper.GetForeignKeyType();
+                pstmtType = PreparedStatementTypeMapper.GetForeignKeyType();
             }
-            if (constraints.Any(c => c.GetType() == typeof(Pk))) ddlType = "serial";
+            if (constraints.Any(c => c.GetType() == typeof(Pk))) ddlType = typeMapper.GetPrimaryKeyType();
             // because we always want to enforce enums to be text
-            if (t.IsEnum) ddlType = "text";
-
-            PreparedStatementTypeMapper.Map(t);
+            if (t.IsEnum) ddlType = typeMapper.GetEnumType();
 
             return new OrmDbType(
                 ddlType,
-                PreparedStatementTypeMapper.Map(t)
+                pstmtType
             );
         }
     }

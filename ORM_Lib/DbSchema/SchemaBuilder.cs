@@ -46,6 +46,7 @@ namespace ORM_Lib.DbSchema
                 {
                     if (typeof(Fk) == relation.GetType())
                     {
+                        //TODO: Fk and ManyToOne are basically the same shit
                         var fk = relation as Fk;
                         var toType = fk.ToPocoType;
                         var toEntity = entities.First(e => e.PocoType == toType);
@@ -57,10 +58,8 @@ namespace ORM_Lib.DbSchema
                         var oneToMany = relation as OneToMany;
                         var mappingEntity = entities.First(e => e.PocoType == oneToMany.MappedByPocoType);
                         oneToMany.MappedByEntity = mappingEntity;
-//                      get the Column with the ManyToOne annotation - if we dont find exactly one we can throw because something is seriously wrong
-                        // TODO: may need to change later - at the moment we only allow bidirectional ManyToOne and OneToMany!
-                        oneToMany.MappedByProperty = mappingEntity.Columns
-                            .Single(c => c.PropInfo.PropertyType == entity.PocoType).PropInfo;
+                        // if we do not find exactly one we throw
+                        oneToMany.MappedByProperty = mappingEntity.Columns.Single(c => c.Name == oneToMany.mappedByColumnName).PropInfo;
                     }
                     else if (typeof(ManyToOne) == relation.GetType())
                     {
