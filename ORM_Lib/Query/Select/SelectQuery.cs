@@ -12,9 +12,10 @@ namespace ORM_Lib.Query.Select
         internal List<Column> _combinedQueryColumns;
         internal Entity _entityExecutedOn;
         internal List<IWhereFilter> _whereFilter;
+        internal List<Join> _joins;
 
 
-        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns, List<IWhereFilter> whereFilter)
+        internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns, List<IWhereFilter> whereFilter, List<Join> joins)
         {
             _ctx = ctx;
             _entityExecutedOn = entityExecutedOn;
@@ -27,6 +28,7 @@ namespace ORM_Lib.Query.Select
                 }
             }
             _whereFilter = whereFilter;
+            _joins = joins;
         }
 
         public IEnumerable<T> Execute()
@@ -38,22 +40,31 @@ namespace ORM_Lib.Query.Select
         }
 
         //
-        public string BuildFrom()
+        private string BuildFrom()
         {
-            var eAlias = _entityExecutedOn.Alias;
-            if (_entityExecutedOn.SuperClasses.Count >= 1)
-            {
-                var superEntity = _ctx.Schema.GetByType(_entityExecutedOn.SuperClasses.First());
-                var sEAlias = superEntity.Alias;
-                return $"{superEntity.Name} {sEAlias} JOIN {_entityExecutedOn.Name} {eAlias} ON {sEAlias}.{superEntity.PkColumn.Name} = {eAlias}.{_entityExecutedOn.PkColumn.Name}";
-            }
-            else
-            {
-                return $"{_entityExecutedOn.Name} {eAlias}";
-            }
+            //var eAlias = _entityExecutedOn.Alias;
+            //if (_entityExecutedOn.SuperClasses.Count >= 1)
+            //{
+            //    var superEntity = _ctx.Schema.GetByType(_entityExecutedOn.SuperClasses.First());
+            //    var sEAlias = superEntity.Alias;
+            //    return $"{superEntity.Name} {sEAlias} JOIN {_entityExecutedOn.Name} {eAlias} ON {sEAlias}.{superEntity.PkColumn.Name} = {eAlias}.{_entityExecutedOn.PkColumn.Name}";
+            //}
+            //else
+            //{
+            var from = $"{_entityExecutedOn.Name} {_entityExecutedOn.Alias}";
+            if (_joins.Count > 0)
+                from += $" {BuildJoins()}";
+            return from;
+            //}
+        }
+        private string BuildJoins()
+        {
+            return _joins
+                .Select(j => $"{j.AsSqlString()}")
+                .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1} {c2}");
         }
 
-        public string BuildWhere()
+        private string BuildWhere()
         {
             return _whereFilter
                 .Select(w => $"{w.AsSqlString()}")

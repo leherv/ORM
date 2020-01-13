@@ -25,11 +25,10 @@ namespace ORM_Example
         }
         private Class _class;
 
-        public Student(string name, string firstName, Gender gender, DateTime bDay, List<Course> courses) : base(name,
+        public Student(string name, string firstName, Gender gender, DateTime bDay) : base(name,
             firstName, gender,
             bDay)
         {
-            Courses = courses;
         }
 
         public Student() { }

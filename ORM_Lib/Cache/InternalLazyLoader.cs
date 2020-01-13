@@ -37,7 +37,7 @@ namespace ORM_Lib.Cache
             }
             else if (relation.GetType() == typeof(ManyToMany))
             {
-
+                return LoadManyToMany<T>();
             }
             throw new NotImplementedException("RelationType not supported");
         }
@@ -55,6 +55,10 @@ namespace ORM_Lib.Cache
         }
 
 
+        private ICollection<T> LoadManyToMany<T>()
+        {
+            return null;
+        }
 
         private ICollection<T> LoadOneToMany<T>(object poco, Column column, ref ICollection<T> loadTo, OneToMany relation)
         {

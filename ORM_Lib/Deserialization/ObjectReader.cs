@@ -62,7 +62,6 @@ namespace ORM_Lib.Deserialization
                     {
                         var value = reader[col.Name];
                         // specially handle enums
-                        // TODO: doc enums will always be stored as strings
                         if (col.PropInfo.PropertyType.IsEnum)
                         {
                             value = Enum.Parse(col.PropInfo.PropertyType, value as string);

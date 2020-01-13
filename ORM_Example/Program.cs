@@ -34,8 +34,6 @@ namespace ORM_Example
             //    .Execute();
 
 
-
-
             // Simple Select //
             //var persons = dbContext.Persons.Select(new string[] { }).Build().Execute();
             //var persons = dbContext.Persons.Select(null).Build().Execute();
@@ -73,7 +71,7 @@ namespace ORM_Example
             //var teacher = c.Teacher; 
 
             // ManyToMany + 
-            var courses = dbContext.Courses.Select(null).Build().Execute();
+            //var courses = dbContext.Courses.Select(null).Build().Execute();
 
 
 

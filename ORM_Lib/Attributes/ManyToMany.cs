@@ -9,11 +9,7 @@ namespace ORM_Lib.Attributes
     {
         // TODO: maybe we do not need FromPocoType and FromEntity 
         public string TableName { get; set; }
-
-
         public Type ToPocoType { get; set; }
-
-
 
         internal Entity ToEntity { get; set; }
         public string ForeignKeyNear { get; set; }

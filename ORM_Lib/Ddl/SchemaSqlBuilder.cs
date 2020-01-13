@@ -38,7 +38,6 @@ namespace ORM_Lib.Ddl
                 .Select(m => EntitySqlBuilder.BuildManyToManyDdl(m, typeMapper))
                 .Aggregate(ddlBuilder, (builder, s) => builder.AppendLine(s + ";"));
             ddlBuilder.AppendLine();
-            //TODO: maybe leave here - can not handle in BuildConstraints or it will be done twice
             manyToMany
                 .Select(m => BuildPrimaryKey(m.TableName, new[] { m.ForeignKeyFar, m.ForeignKeyNear }))
                 .Aggregate(ddlBuilder, (builder, s) => builder.AppendLine(s + ";"));

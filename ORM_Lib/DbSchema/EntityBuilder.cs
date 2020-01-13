@@ -18,7 +18,6 @@ namespace ORM_Lib.DbSchema
 
             if (!ContainsPk(propInfos)) throw new InvalidOperationException("Entity has no primary key");
             var columns = propInfos.Select(propInfo => ColumnBuilder.BuildColumn(propInfo, tableType, tableTypes, typeMapper)).ToList();
-            // TODO: maybe return tuple of (PkColumn, Columns) in columnBuilder instead
             var pkColumn = columns.First(c => c.Constraints.Any(cons => typeof(Pk) == cons.GetType()));
             return new Entity(
                 BuildEntityName(tableType),

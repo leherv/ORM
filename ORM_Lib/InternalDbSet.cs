@@ -29,10 +29,3 @@ namespace ORM_Lib
         }
     }
 }
-
-
-
-// TODO: für später ShadowObject mit Metainformationen
-// Dictionary <Type, Dictionary<PK,(Entity, ShadowEntity)> 
-
-//TODO: SELECT und WHERE , ORDERBY muss nicht sein

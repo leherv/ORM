@@ -13,6 +13,7 @@ namespace ORM_Lib.Query.Select
         private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
         private List<IWhereFilter> _whereFilter = new List<IWhereFilter>();
+        private List<Join> _joins = new List<Join>(); 
 
         internal SelectQueryBuilder(DbContext ctx, string[] queriedColumns, Type fromType)
         {
@@ -24,19 +25,23 @@ namespace ORM_Lib.Query.Select
 
         private void BuildCombinedQueryColumns()
         {
-            //TODO: doc if columns is empty all columns will be used!
             var columnsToQuery = _queriedColumns != null && _queriedColumns.Length > 0 ? _queriedColumns.Select(c => _entityExecutedOn.GetColumnByName(c)).ToList() : _entityExecutedOn.Columns;
             var entity = _entityExecutedOn;
             if (entity.SuperClasses.Any())
             {
                 var superEntity = entity.SuperClasses.Select(superCl => _ctx.Schema.GetByType(superCl)).First();
+                Join(new Join(_entityExecutedOn.Alias, _entityExecutedOn.PkColumn.Name, superEntity.Name, superEntity.Alias, superEntity.PkColumn.Name));
                 if (_queriedColumns == null || _queriedColumns.Length <= 0)
                 {
                     columnsToQuery.AddRange(superEntity.Columns);
                 }
             }
-            //_combinedQueryColumns = new HashSet<Column>(columnsToQuery);
             _combinedQueryColumns = columnsToQuery;
+        }
+
+        internal void Join(Join join)
+        {
+            _joins.Add(join);
         }
 
         public SelectQueryBuilder<T> Where(IWhereFilter where)
@@ -49,10 +54,10 @@ namespace ORM_Lib.Query.Select
         {
             return new SelectQuery<T>(
                 _ctx,
-                // TODO: doc either a string [] of columns to select or empty array to select all
                 _entityExecutedOn,
                 _combinedQueryColumns,
-                _whereFilter
+                _whereFilter,
+                _joins
             );
 
 
