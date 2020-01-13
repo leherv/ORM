@@ -1,4 +1,5 @@
-﻿using ORM_Lib.Query.Where;
+﻿using ORM_Lib.DbSchema;
+using ORM_Lib.Query.Where;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace ORM_Lib.Query
         private ISqlExpression _left;
         private ISqlExpression _right;
         private string _operatorSymbol;
+        private Entity _entity;
 
         public BinaryExpression(ISqlExpression left, ISqlExpression right, string operatorSymbol)
         {
@@ -69,6 +71,11 @@ namespace ORM_Lib.Query
             return new BinaryExpression(left, right, "OR");
         }
 
-        
+        void ISqlExpression.SetContextInformation(Entity entity)
+        {
+            _entity = entity;
+            _left.SetContextInformation(entity);
+            _right.SetContextInformation(entity);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ORM_Lib.Attributes;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Query;
+using ORM_Lib.Query.Select;
 using ORM_Lib.Query.Where;
 using System;
 using System.Collections.Generic;
@@ -66,8 +67,8 @@ namespace ORM_Lib.Cache
             selectQueryBuilder = selectQueryBuilder
                 .Where(
                     BinaryExpression.Eq(
-                        new ColumnExpression(targetEntity.Alias, whereColumn.Name),
-                        new ValueExpression("test", whereValue, whereColumn.DbType.PStmtDbType)
+                        new ColumnExpression(whereColumn.Name),
+                        new ValueExpression(whereValue, whereColumn.DbType.PStmtDbType)
                     )
                 );
             var result = selectQueryBuilder.Build().Execute().ToList();
@@ -90,8 +91,8 @@ namespace ORM_Lib.Cache
             selectQueryBuilder = selectQueryBuilder
                 .Where(
                     BinaryExpression.Eq(
-                        new ColumnExpression(targetEntity.Alias, whereColumn.Name),
-                        new ValueExpression("test", fk, whereColumn.DbType.PStmtDbType)
+                        new ColumnExpression(whereColumn.Name),
+                        new ValueExpression(fk, whereColumn.DbType.PStmtDbType)
                     )
                 );
             var result = selectQueryBuilder.Build().Execute().ToList();

@@ -1,7 +1,9 @@
 ﻿using Npgsql;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Deserialization;
-using ORM_Lib.Query;
+using ORM_Lib.Query.Insert;
+using ORM_Lib.Query.Select;
+using ORM_Lib.Query.Where;
 using System;
 using System.Collections.Generic;
 
@@ -46,13 +48,66 @@ namespace ORM_Lib
 
         }
 
-        public IEnumerable<T> ExecuteQuery<T>(SelectQuery<T> query, Entity entity, List<Column> combinedQueryColumns)
+        public IEnumerable<T> ExecuteQuery<T>(SelectQuery<T> query)
         {
             //TODO: generalize to DbConnection and DbCommand 
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
             using var command = new NpgsqlCommand(query.AsSqlString(), connection);
+            PrepareStatement(query, command);
+            var objectReader = new ObjectReader<T>(_ctx, command.ExecuteReader(), query._entityExecutedOn, query._combinedQueryColumns);
+            var result = objectReader.Serialize();
+            connection.Close();
+            return result;
+        }
 
+        public void ExecuteInsert<T>(InsertStatement<T> statement)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+            using var command = new NpgsqlCommand(statement.AsSqlString(), connection);
+            PrepareStatement(statement, command);
+            var reader = command.ExecuteReader();
+            //var hasRows = reader.HasRows;
+            //var f = reader.GetValue(1);
+
+            //// now we set the pks the db returned on our pocos and add them to the cache
+            //var entity = statement._entityExecutedOn;
+            //var pkCol = entity.PkColumn;
+            //var pocos = statement._pocos;
+            //var cache = _ctx.Cache;
+
+            //foreach (var poco in pocos)
+            //{
+            //    var pk = reader[pkCol.Name];
+            //    pkCol.PropInfo.SetMethod.Invoke(poco, new[] { pk });
+            //    var cacheEntry = cache.GetOrInsert(entity, (long)pk, poco);
+
+            //    // now we fill originalPoco
+            //    foreach (var col in entity.Columns)
+            //    {
+            //        if (col.IsDbColumn)
+            //        {
+            //            if (col.IsShadowAttribute)
+            //            {
+            //                //cacheEntry.ShadowAttributes
+            //            }
+            //            else
+            //            {
+            //                var value = col.PropInfo.GetMethod.Invoke(poco, new object[] { });
+            //                // fill the originalEntries with values for changeTracking later
+            //                if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
+
+            //            }
+            //        }
+            //    }
+            //}
+            connection.Close();
+        }
+
+
+        private void PrepareStatement(ISqlExpression query, NpgsqlCommand command)
+        {
             foreach (var namedParam in query.GetNamedParams())
             {
                 var parameter = command.CreateParameter();
@@ -61,13 +116,8 @@ namespace ORM_Lib
                 parameter.ParameterName = namedParam.Alias;
                 command.Parameters.Add(parameter);
             }
-
-
-            var objectReader = new ObjectReader<T>(_ctx, command.ExecuteReader(), entity, combinedQueryColumns);
-            var result = objectReader.Serialize();
-            connection.Close();
-            return result;
         }
+
 
     }
 }

@@ -196,11 +196,86 @@ For single objects:
 
 #### Querying
 
+##### Simple Select
+Select can be executed on the DbSets to fetch entities corresponding to the type of the DbSet.
+You can **query all columns** like this:
+```
+    var persons = dbContext.Persons.Select(new string[] { }).Build().Execute();
+    var persons = dbContext.Persons.Select(null).Build().Execute();
+```
+
+One can also execute **partial selects** with only some columns which then have to be passed with the column-name as string.
+```
+    var partialPersons = dbContext.Persons.Select(new[] { "name", "firstname" }).Build().Execute();
+```
+
+##### Select with Where-Filter
+You can also filter entities to select at database-level like this:
+
+```
+    var filteredPerson = dbContext.Persons
+        .Select(null)
+        .Where(BinaryExpression.Eq(new ColumnExpression("firstname"), new ValueExpression("test_firstname")))
+        .Build()
+        .Execute();
+```
+* There are a couple of predefined BinaryExpressions, all they do is automatically set the operator. You can also create a BinaryExpression with another operator by using the normal constructor.
+* ColumnExpression defines which column will be queried
+* ValueExpression sets the value for the comparison
+
+You can also use two ValueExpressions (although you could just drop the whole Where) like this:
+```
+    var filteredPerson = dbContext.Persons
+        .Select(null)
+        .Where(BinaryExpression.Eq(new ValueExpression(1), new ValueExpression(1)))
+        .Build()
+        .Execute();
+```
+
 
 #### Adding
+Inserting objects into the database works like this:
 
+##### Single Object
+```
+    dbContext.Persons
+        .Add(new Person("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1)))
+        .Build()
+        .Execute();
+
+```
+
+##### Multiple Objects
+```
+    dbContext.Persons
+        .Add(new[] {
+            new Person("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2)),
+            new Person("test_name3", "test_firstname3", Gender.MALE, new DateTime(2003,3,3))
+        })
+        .Build()
+        .Execute();
+```
 
 #### Saving
+
+
+
+
+
+#### Important Mentions
+
+```
+    var persons = dbContext.Persons.Select(null).Build().Execute();
+    // firstName from database = "john"
+    var person = persons.First();
+    person.FirstName = "Tom";
+
+    var persons2 = dbContext.Persons.Select(null).Build().Execute();
+    // firstName = "john" as the change was not saved!
+    var firstName = person.FirstName;
+```
+
+* Inheritance is supported but only 1 level (Example-Project: Teacher - Person)
 
 
 

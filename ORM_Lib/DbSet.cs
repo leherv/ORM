@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using ORM_Lib.Query;
+using ORM_Lib.Query.Insert;
+using ORM_Lib.Query.Select;
 
 namespace ORM_Lib
 {
@@ -17,7 +18,9 @@ namespace ORM_Lib
         }
 
         public abstract SelectQueryBuilder<T> Select(string[] columns);
-        public abstract void Add(T poco);
+        public abstract InsertStatementBuilder<T> Add(IEnumerable<T> poco);
+
+        public abstract InsertStatementBuilder<T> Add(T poco);
 
     }
 }

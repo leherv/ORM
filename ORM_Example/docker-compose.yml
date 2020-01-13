@@ -10,3 +10,4 @@ services:
       POSTGRES_USER: 'user'
       POSTGRES_PASSWORD: '1234'
       POSTGRES_DB: 'orm_db'
+    command: ["postgres", "-c", "log_statement=all"]

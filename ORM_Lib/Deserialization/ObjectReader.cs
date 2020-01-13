@@ -72,13 +72,18 @@ namespace ORM_Lib.Deserialization
                         // fill the object from the cache with values
                         col.PropInfo.GetSetMethod(true).Invoke(cacheEntry.Poco, new[] { value });
                     }
-
-
                 }
             }
             // instantiate the inner lazy loader in the object
             InjectLazyLoader(cacheEntry.Poco);
             return (T)cacheEntry.Poco;
+        }
+
+
+
+        private void HandleInsert()
+        {
+
         }
 
         public void InjectLazyLoader(object poco)

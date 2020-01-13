@@ -1,18 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using ORM_Lib.DbSchema;
-using ORM_Lib.Deserialization;
 using ORM_Lib.Query.Where;
 
-namespace ORM_Lib.Query
+namespace ORM_Lib.Query.Select
 {
     // class is public because user has to be able to see it and execute - Execute | but he is not allowed to create an instance himself constructor internal
     public class SelectQuery<T> : ISqlExpression
     {
-        private DbContext _ctx;
-        private List<Column> _combinedQueryColumns;
-        private Entity _entityExecutedOn;
-        private List<IWhereFilter> _whereFilter;
+        internal DbContext _ctx;
+        internal List<Column> _combinedQueryColumns;
+        internal Entity _entityExecutedOn;
+        internal List<IWhereFilter> _whereFilter;
 
 
         internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns, List<IWhereFilter> whereFilter)
@@ -20,6 +19,13 @@ namespace ORM_Lib.Query
             _ctx = ctx;
             _entityExecutedOn = entityExecutedOn;
             _combinedQueryColumns = combinedQueryColumns;
+            if (whereFilter != null)
+            {
+                foreach (var w in whereFilter)
+                {
+                    w.SetContextInformation(_entityExecutedOn);
+                }
+            }
             _whereFilter = whereFilter;
         }
 
@@ -27,7 +33,7 @@ namespace ORM_Lib.Query
         {
             Database db = _ctx.Database;
             // we send all the queriedColumns here to decide which to set on the object later
-            var result = db.ExecuteQuery<T>(this, _entityExecutedOn, _combinedQueryColumns);
+            var result = db.ExecuteQuery(this);
             return result;
         }
 
@@ -50,7 +56,6 @@ namespace ORM_Lib.Query
         public string BuildWhere()
         {
             return _whereFilter
-                // isindb
                 .Select(w => $"{w.AsSqlString()}")
                 .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1} AND {c2}");
 
@@ -79,10 +84,14 @@ namespace ORM_Lib.Query
             return _combinedQueryColumns
                 // isindb
                 .Where(c => c.IsDbColumn)
-                .Select(c => $"{(c.Entity.Alias)}.{c.Name}")
+                .Select(c => $"{c.Entity.Alias}.{c.Name}")
                 .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1}, {c2}");
         }
 
 
+        void ISqlExpression.SetContextInformation(Entity entity)
+        {
+
+        }
     }
 }

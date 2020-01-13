@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using ORM_Lib.Attributes;
 using ORM_Lib.TypeMapper;
@@ -15,6 +16,8 @@ namespace ORM_Lib.DbSchema
         public OrmDbType DbType { get; set; }
         public string Name { get; set; }
         public HashSet<Constraint> Constraints { get; set; }
+
+        public bool IsPkColumn => Constraints.Any(c => c.GetType() == typeof(Pk));
 
         public Relation Relation { get; set; }
 

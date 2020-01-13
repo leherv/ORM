@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ORM_Lib;
@@ -15,6 +16,26 @@ namespace ORM_Example
             var dbContext = new ExampleDbContext();
 
 
+            //Adding(leave out and use testData.sql for already inserted tests)
+            //dbContext.Teachers
+            //    .Add(new[] {
+            //        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+            //        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)    
+            //    })
+            //    .Build()
+            //    .Execute();
+
+            //dbContext.Persons
+            //    .Add(new[] {
+            //        new Person("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2)),
+            //        new Person("test_name3", "test_firstname3", Gender.MALE, new DateTime(2003,3,3))
+            //    })
+            //    .Build()
+            //    .Execute();
+
+
+
+
             // Simple Select //
             //var persons = dbContext.Persons.Select(new string[] { }).Build().Execute();
             //var persons = dbContext.Persons.Select(null).Build().Execute();
@@ -26,7 +47,15 @@ namespace ORM_Example
             // Select Where //
             //var filteredPerson = dbContext.Persons
             //    .Select(null)
-            //    .Where(BinaryExpression.Eq(new ColumnExpression(), new ValueExpression()));
+            //    .Where(BinaryExpression.Eq(new ColumnExpression("firstname"), new ValueExpression("test_firstname")))
+            //    .Build()
+            //    .Execute();
+
+            //var filteredPerson = dbContext.Persons
+            //    .Select(null)
+            //    .Where(BinaryExpression.Eq(new ValueExpression(1), new ValueExpression(1)))
+            //    .Build()
+            //    .Execute();
 
             // OneToMany + Inheritance //
             //var teachers = dbContext.Teachers.Select(new string[] { }).Build().Execute();
@@ -43,11 +72,20 @@ namespace ORM_Example
             ////lazy load ManyToOne
             //var teacher = c.Teacher; 
 
-
             // ManyToMany + 
-            //var courses = dbContext.Courses.Select(null).Build().Execute();
+            var courses = dbContext.Courses.Select(null).Build().Execute();
 
 
+
+            // Important Mentions //
+            //var persons = dbContext.Persons.Select(null).Build().Execute();
+            //// firstName from database = "john"
+            //var person = persons.First();
+            //person.FirstName = "Tom";
+
+            //var persons2 = dbContext.Persons.Select(null).Build().Execute();
+            //// firstName = "john" as the change was not saved!
+            //var firstName = person.FirstName;
 
         }
     }

@@ -29,10 +29,9 @@ namespace ORM_Example
         }
         private ICollection<Class> _classes;
 
-        public Teacher(string name, string firstName, Gender gender, DateTime bDay, int salary, List<Course> courses) : base(name, firstName, gender, bDay)
+        public Teacher(string name, string firstName, Gender gender, DateTime bDay, int salary) : base(name, firstName, gender, bDay)
         {
             Salary = salary;
-            Courses = courses;
         }
 
         public Teacher() { }

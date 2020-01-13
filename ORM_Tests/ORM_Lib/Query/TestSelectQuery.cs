@@ -3,6 +3,7 @@ using NUnit.Framework;
 using ORM_Lib;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Query;
+using ORM_Lib.Query.Select;
 using ORM_Lib.Query.Where;
 using ORM_Lib.TypeMapper;
 
@@ -41,9 +42,10 @@ namespace ORM_Tests.ORM_Lib.Query
         public void TestSelectWhere()
         {
             var where = BinaryExpression.GT(
-                new ColumnExpression(TestEntity.Alias, "column1"),
-                new ValueExpression("test", 5, PreparedStatementTypeMapper.Map(typeof(int)))
+                new ColumnExpression("column1"),
+                new ValueExpression(5, PreparedStatementTypeMapper.Map(typeof(int)), "test")
             );
+         
             var selectQuery = new SelectQuery<TestEntity>(
                 null,
                 TestEntity,
@@ -58,12 +60,12 @@ namespace ORM_Tests.ORM_Lib.Query
         public void TestSelectMultipleWhere()
         {
             var where = BinaryExpression.GT(
-                new ColumnExpression(TestEntity.Alias, "column1"),
-                new ValueExpression("test", 5, PreparedStatementTypeMapper.Map(typeof(int)))
+                new ColumnExpression("column1"),
+                new ValueExpression(5, PreparedStatementTypeMapper.Map(typeof(int)), "test")
             );
             var where2 = BinaryExpression.Eq(
-                new ColumnExpression(TestEntity.Alias, "column2"),
-                new ValueExpression("test2", "hallo", PreparedStatementTypeMapper.Map(typeof(string)))
+                new ColumnExpression("column2"),
+                new ValueExpression("hallo", PreparedStatementTypeMapper.Map(typeof(string)), "test2")
             );
             var selectQuery = new SelectQuery<TestEntity>(
                 null,

@@ -12,6 +12,7 @@ namespace ORM_Lib.Query.Where
 
         IEnumerable<NamedParameter> GetNamedParams();
 
+        internal void SetContextInformation(Entity entity);
 
 
     }

@@ -9,23 +9,27 @@ namespace ORM_Lib.Query.Where
     public class ColumnExpression : ISqlExpression
     {
 
-        private string _tableAlias;
         private string _columnName;
+        private Entity _entity;
 
-        public ColumnExpression(string tableAlias, string columnName)
+        public ColumnExpression(string columnName)
         {
-            _tableAlias = tableAlias;
             _columnName = columnName;
         }
 
         public string AsSqlString()
         {
-            return $"{_tableAlias}.{_columnName}";
+            return $"{_entity.Alias}.{_columnName}";
         }
 
         public IEnumerable<NamedParameter> GetNamedParams()
         {
             return Enumerable.Empty<NamedParameter>();
+        }
+
+        void ISqlExpression.SetContextInformation(Entity entity)
+        {
+            _entity = entity;
         }
     }
 }

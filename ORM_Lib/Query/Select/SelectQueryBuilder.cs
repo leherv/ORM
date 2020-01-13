@@ -4,12 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ORM_Lib.Query
+namespace ORM_Lib.Query.Select
 {
     public class SelectQueryBuilder<T>
     {
         private string[] _queriedColumns;
-        private Type _fromType;
         private DbContext _ctx;
         private List<Column> _combinedQueryColumns;
         private Entity _entityExecutedOn;
@@ -18,7 +17,6 @@ namespace ORM_Lib.Query
         internal SelectQueryBuilder(DbContext ctx, string[] queriedColumns, Type fromType)
         {
             _ctx = ctx;
-            _fromType = fromType;
             _entityExecutedOn = _ctx.Schema.GetByType(fromType);
             _queriedColumns = queriedColumns;
             BuildCombinedQueryColumns();
@@ -27,7 +25,7 @@ namespace ORM_Lib.Query
         private void BuildCombinedQueryColumns()
         {
             //TODO: doc if columns is empty all columns will be used!
-            var columnsToQuery = (_queriedColumns != null && _queriedColumns.Length > 0) ? _queriedColumns.Select(c => _entityExecutedOn.GetColumnByName(c)).ToList() : _entityExecutedOn.Columns;
+            var columnsToQuery = _queriedColumns != null && _queriedColumns.Length > 0 ? _queriedColumns.Select(c => _entityExecutedOn.GetColumnByName(c)).ToList() : _entityExecutedOn.Columns;
             var entity = _entityExecutedOn;
             if (entity.SuperClasses.Any())
             {
@@ -46,7 +44,7 @@ namespace ORM_Lib.Query
             _whereFilter.Add(where);
             return this;
         }
-      
+
         public SelectQuery<T> Build()
         {
             return new SelectQuery<T>(
@@ -55,7 +53,7 @@ namespace ORM_Lib.Query
                 _entityExecutedOn,
                 _combinedQueryColumns,
                 _whereFilter
-            ); 
+            );
 
 
         }

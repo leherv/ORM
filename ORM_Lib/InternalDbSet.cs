@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ORM_Lib.DbSchema;
-using ORM_Lib.Query;
+using ORM_Lib.Query.Insert;
+using ORM_Lib.Query.Select;
 
 namespace ORM_Lib
 {
@@ -12,9 +13,14 @@ namespace ORM_Lib
         {
         }
 
-        public override void Add(T poco)
+        public override InsertStatementBuilder<T> Add(IEnumerable<T> poco)
         {
-            throw new NotImplementedException();
+            return new InsertStatementBuilder<T>(_ctx, typeof(T), poco);
+        }
+
+        public override InsertStatementBuilder<T> Add(T poco)
+        {
+            return Add(new[] { poco });
         }
 
         public override SelectQueryBuilder<T> Select(string[] columns)
