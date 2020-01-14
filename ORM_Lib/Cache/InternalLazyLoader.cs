@@ -37,7 +37,7 @@ namespace ORM_Lib.Cache
             }
             else if (relation.GetType() == typeof(ManyToMany))
             {
-                return LoadManyToMany<T>();
+                return LoadManyToMany<T>(poco, column, ref loadTo, relation as ManyToMany);
             }
             throw new NotImplementedException("RelationType not supported");
         }
@@ -55,16 +55,22 @@ namespace ORM_Lib.Cache
         }
 
 
-        private ICollection<T> LoadManyToMany<T>()
+        private ICollection<T> LoadManyToMany<T>(object poco, Column column, ref ICollection<T> loadTo, ManyToMany relation)
         {
-            return null;
+            var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, null, relation.ToPocoType)
+                .Join(new Join(
+                    relation.ToEntity.Alias, relation.ToEntity.PkColumn.Name, relation.TableName, "relationNeedsAlias", relation.ForeignKeyFar
+                 ))
+                .Join(new Join(
+                    "relatioNneedsAlias", relation.ForeignKeyNear, _entity.Name, _entity.Alias, _entity.PkColumn.Name
+                ));
+            return selectQueryBuilder.Build().Execute().ToList();
         }
 
         private ICollection<T> LoadOneToMany<T>(object poco, Column column, ref ICollection<T> loadTo, OneToMany relation)
         {
             var targetEntity = relation.MappedByEntity;
             var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, null, relation.MappedByPocoType);
-
             var whereColumn = targetEntity.Columns.Where(c => c.PropInfo == relation.MappedByProperty).First();
             // primary key of the current object! 
             var whereValue = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[] { });
@@ -75,8 +81,7 @@ namespace ORM_Lib.Cache
                         new ValueExpression(whereValue, whereColumn.DbType.PStmtDbType)
                     )
                 );
-            var result = selectQueryBuilder.Build().Execute().ToList();
-            return result;
+            return selectQueryBuilder.Build().Execute().ToList();
         }
 
         private T LoadManyToOne<T>(object poco, Column column, ref T loadTo, ManyToOne relation)
@@ -99,8 +104,7 @@ namespace ORM_Lib.Cache
                         new ValueExpression(fk, whereColumn.DbType.PStmtDbType)
                     )
                 );
-            var result = selectQueryBuilder.Build().Execute().ToList();
-            return result.FirstOrDefault();
+            return selectQueryBuilder.Build().Execute().FirstOrDefault();
         }
 
 

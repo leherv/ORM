@@ -35,7 +35,7 @@ namespace ORM_Lib
 
         public void SaveChanges()
         {
-            throw new NotImplementedException();
+
         }
         
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)

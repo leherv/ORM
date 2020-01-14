@@ -72,6 +72,8 @@ namespace ORM_Example
 
             // ManyToMany + 
             //var courses = dbContext.Courses.Select(null).Build().Execute();
+            //var course = courses.First();
+            //var students = course.Students;
 
 
 

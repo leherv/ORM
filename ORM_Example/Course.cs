@@ -23,7 +23,7 @@ namespace ORM_Example
         }
         private Teacher _teacher;
 
-        [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_person_id", ForeignKeyFar = "fk_course_id")]
+        [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_course_id", ForeignKeyFar = "fk_person_id")]
         public ICollection<Student> Students
         {
             get => LazyLoader.Load(this, ref _students);

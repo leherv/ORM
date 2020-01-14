@@ -111,7 +111,7 @@ namespace ORM_Lib
             foreach (var namedParam in query.GetNamedParams())
             {
                 var parameter = command.CreateParameter();
-                parameter.Value = namedParam.Value;
+                parameter.Value = namedParam.Value ?? DBNull.Value;
                 parameter.DbType = namedParam.DbType;
                 parameter.ParameterName = namedParam.Alias;
                 command.Parameters.Add(parameter);

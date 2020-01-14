@@ -39,9 +39,10 @@ namespace ORM_Lib.Query.Select
             _combinedQueryColumns = columnsToQuery;
         }
 
-        internal void Join(Join join)
+        internal SelectQueryBuilder<T> Join(Join join)
         {
             _joins.Add(join);
+            return this;
         }
 
         public SelectQueryBuilder<T> Where(IWhereFilter where)
