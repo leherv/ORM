@@ -14,20 +14,16 @@ namespace ORM_Lib.Query.Select
         internal List<IWhereFilter> _whereFilter;
         internal List<Join> _joins;
 
-
         internal SelectQuery(DbContext ctx, Entity entityExecutedOn, List<Column> combinedQueryColumns, List<IWhereFilter> whereFilter, List<Join> joins)
         {
             _ctx = ctx;
             _entityExecutedOn = entityExecutedOn;
             _combinedQueryColumns = combinedQueryColumns;
-            if (whereFilter != null)
-            {
-                foreach (var w in whereFilter)
-                {
-                    w.SetContextInformation(_entityExecutedOn);
-                }
-            }
             _whereFilter = whereFilter;
+            foreach (var w in _whereFilter)
+            {
+                w.SetContextInformation(_entityExecutedOn);
+            }
             _joins = joins;
         }
 
@@ -42,21 +38,12 @@ namespace ORM_Lib.Query.Select
         //
         private string BuildFrom()
         {
-            //var eAlias = _entityExecutedOn.Alias;
-            //if (_entityExecutedOn.SuperClasses.Count >= 1)
-            //{
-            //    var superEntity = _ctx.Schema.GetByType(_entityExecutedOn.SuperClasses.First());
-            //    var sEAlias = superEntity.Alias;
-            //    return $"{superEntity.Name} {sEAlias} JOIN {_entityExecutedOn.Name} {eAlias} ON {sEAlias}.{superEntity.PkColumn.Name} = {eAlias}.{_entityExecutedOn.PkColumn.Name}";
-            //}
-            //else
-            //{
             var from = $"{_entityExecutedOn.Name} {_entityExecutedOn.Alias}";
             if (_joins.Count > 0)
                 from += $" {BuildJoins()}";
             return from;
-            //}
         }
+
         private string BuildJoins()
         {
             return _joins

@@ -1,9 +1,9 @@
 ﻿using Npgsql;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Deserialization;
+using ORM_Lib.Query;
 using ORM_Lib.Query.Insert;
 using ORM_Lib.Query.Select;
-using ORM_Lib.Query.Where;
 using System;
 using System.Collections.Generic;
 
@@ -94,7 +94,7 @@ namespace ORM_Lib
             //            }
             //            else
             //            {
-            //                var value = col.PropInfo.GetMethod.Invoke(poco, new object[] { });
+            //                var value = col.PropInfo.GetMethod.Invoke(poco, new object[0]);
             //                // fill the originalEntries with values for changeTracking later
             //                if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
 

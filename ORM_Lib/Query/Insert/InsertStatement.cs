@@ -131,7 +131,7 @@ namespace ORM_Lib.Query.Insert
                 foreach (var col in cols)
                 {
                     // get the value of poco and handle if its enum
-                    var value = col.PropInfo.GetMethod.Invoke(_pocos[i], new object[] { });
+                    var value = col.PropInfo.GetMethod.Invoke(_pocos[i], new object[0]);
                     if (col.PropInfo.PropertyType.IsEnum) value = value.ToString();
                     singleInsert.Add(
                         new NamedParameter(

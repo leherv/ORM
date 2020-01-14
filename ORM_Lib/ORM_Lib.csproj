@@ -14,8 +14,5 @@
       <PackageReference Include="Npgsql" Version="4.1.2" />
       <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
     </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Saving\" />
-    </ItemGroup>
 
 </Project>

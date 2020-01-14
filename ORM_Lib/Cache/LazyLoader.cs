@@ -19,7 +19,8 @@ namespace ORM_Lib.Cache
 
         public T Load<T>(object poco, ref T loadTo, [CallerMemberName] string name = "")
         {
-            return (T)new object();
+            if (loadTo != null || InternalLazyLoader == null) return loadTo;
+            return InternalLazyLoader.Load(poco, ref loadTo) ?? loadTo;
         }
     }
 }

@@ -60,8 +60,6 @@ namespace ORM_Lib.Query.Select
                 _whereFilter,
                 _joins
             );
-
-
         }
     }
 }

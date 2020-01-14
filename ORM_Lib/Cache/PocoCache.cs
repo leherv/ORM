@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using ORM_Lib.Extensions;
+using ORM_Lib.Saving;
 
 namespace ORM_Lib.Cache
 {
@@ -14,8 +15,14 @@ namespace ORM_Lib.Cache
         public CacheEntry GetOrInsert(Entity entity, long primaryKey, object poco)
         {
             var pocoCache = _entityPocoCache.GetOrInsert(entity, new Dictionary<long, CacheEntry>());
-            var cacheEntry = pocoCache.GetOrInsert(primaryKey, new CacheEntry(poco));
+            var cacheEntry = pocoCache.GetOrInsert(primaryKey, new CacheEntry(poco, entity));
             return cacheEntry;
+        }
+
+
+        public List<PocoChange> GetChanges()
+        {
+            return new List<PocoChange>();
         }
 
         

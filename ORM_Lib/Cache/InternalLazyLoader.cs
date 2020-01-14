@@ -73,7 +73,7 @@ namespace ORM_Lib.Cache
             var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, null, relation.MappedByPocoType);
             var whereColumn = targetEntity.Columns.Where(c => c.PropInfo == relation.MappedByProperty).First();
             // primary key of the current object! 
-            var whereValue = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[] { });
+            var whereValue = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[0]);
             selectQueryBuilder = selectQueryBuilder
                 .Where(
                     BinaryExpression.Eq(
@@ -90,7 +90,7 @@ namespace ORM_Lib.Cache
             var targetEntity = relation.ToEntity;
             var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, null, relation.ToPocoType);
 
-            var pk = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[] { });
+            var pk = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[0]);
             // load shadowEntity from cache because it holds the foreign key
             var cachePoco = cache.GetOrInsert(_entity, (long)pk, poco);
             cachePoco.ShadowAttributes.TryGetValue(column.Name, out var fk);
