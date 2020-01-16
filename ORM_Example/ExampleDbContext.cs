@@ -2,6 +2,7 @@ using System.Buffers.Text;
 using System.Data;
 using System.Data.SqlClient;
 using System.Runtime.CompilerServices;
+using Npgsql;
 using ORM_Lib;
 using ORM_Lib.TypeMapper;
 
@@ -12,8 +13,8 @@ namespace ORM_Example
       
         protected override ORMConfiguration Configuration => new ORMConfiguration(
             new PostgresTypeMapper(),
-            ConnectionStringBuilder.connectionString(),
-            true
+            () => new NpgsqlConnection(ConnectionStringBuilder.connectionString()),
+            false
         );
 
         public DbSet<Person> Persons { get; set; }

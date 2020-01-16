@@ -22,7 +22,19 @@ namespace ORM_Lib.Cache
 
         public List<PocoChange> GetChanges()
         {
-            return new List<PocoChange>();
+            var changes = new List<PocoChange>();
+            // iterate all cacheEntries
+            foreach(var (entity, dict) in _entityPocoCache)
+            {
+                foreach(var (key, cacheEntry) in dict)
+                {
+                    // if there are no changes to the cachedobject we dont add it to the list of pocoChanges
+                    var newValues = cacheEntry.CalculateChange();
+                    if (newValues.Count > 0)
+                        changes.Add(new PocoChange(cacheEntry.Poco, newValues, key));
+                }
+            }
+            return changes;
         }
 
         

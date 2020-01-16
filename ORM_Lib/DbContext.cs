@@ -6,6 +6,7 @@ using System.Reflection;
 using ORM_Lib.DbSchema;
 using ORM_Lib.TypeMapper;
 using ORM_Lib.Cache;
+using ORM_Lib.Query.Update;
 
 namespace ORM_Lib
 {
@@ -25,7 +26,7 @@ namespace ORM_Lib
             var types = Types(propertyInfos).ToList();
             BuildDbSets(propertyInfos, types);
             Schema = BuildSchema(types, Configuration.TypeMapper);
-            Database = new Database(Configuration.ConnectionString, this);
+            Database = new Database(Configuration.Connection, this);
 
             if(Configuration.CreateDB)
             {
@@ -35,7 +36,14 @@ namespace ORM_Lib
 
         public void SaveChanges()
         {
-           
+            var updateStatements = new List<UpdateStatement>();
+            var changes = Cache.GetChanges();
+            foreach(var change in changes)
+            {
+                //TODO continue here (maybe have to add alias number in foreach so we can update in one query!
+                updateStatements.AddRange(new UpdateStatementBuilder(this, change).Build());
+            }
+            
         }
         
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)

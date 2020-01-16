@@ -15,15 +15,20 @@ namespace ORM_Example
         {
             var dbContext = new ExampleDbContext();
 
-
             //Adding(leave out and use testData.sql for already inserted tests)
-            //dbContext.Teachers
-            //    .Add(new[] {
-            //        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
-            //        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)    
-            //    })
-            //    .Build()
-            //    .Execute();
+            var teachers = dbContext.Teachers
+                .Add(new[] {
+                new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+                new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+                })
+                .Build()
+                .Execute();
+
+            var teacher = teachers.First();
+            teacher.FirstName = "test_changed";
+            dbContext.SaveChanges();
+
+
 
             //dbContext.Persons
             //    .Add(new[] {

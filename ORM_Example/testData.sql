@@ -32,13 +32,23 @@ SELECT * FROM class c2 WHERE c2.teacher = (SELECT id FROM custom_name WHERE cust
 SELECT * FROM custom_name c1 WHERE c1.id = (SELECT teacher FROM class WHERE name = '1A');  
 
 -- selects for manytomany 
-SELECT othernamethanid, name, active, teacher FROM student s1 JOIN student_course s2 ON s1.id = s2.fk_person_id JOIN course c3 ON s2.fk_course_id = c3.othernamethanid 
-
-
-SELECT othernamethanid, name, active, teacher FROM course c1 JOIN student_course s2 ON c1.othernamethanid = s2.fk_course_id JOIN student s3 ON s2.fk_person_id = s3.id 
-
 
 SELECT s5.class, s5.id, p1.id, p1.name, p1.firstname, p1.gender, p1.bday FROM student s5 
 JOIN person p1 ON s5.id = p1.id
 JOIN student_course s2 ON s5.id = s2.fk_person_id
 JOIN course c3 ON s2.fk_course_id = c3.othernamethanid
+
+-- insert with inheritance
+WITH AJSF AS (
+INSERT INTO person (name, firstname, gender, bday) 
+VALUES 
+('test_name', 'test_firstname', 'MALE', '2000-01-01'),
+('test_name2', 'test_firstname2', 'FEMALE', '2002-02-02') 
+RETURNING id
+)
+INSERT INTO custom_name (custom_name, id) 
+VALUES 
+(2500, (SELECT * FROM AJSF LIMIT 1 OFFSET 0)),
+(2600, (SELECT * FROM AJSF LIMIT 1 OFFSET 1))
+RETURNING id
+ 

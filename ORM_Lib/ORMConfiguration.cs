@@ -1,6 +1,7 @@
 ﻿using ORM_Lib.TypeMapper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace ORM_Lib
@@ -13,15 +14,15 @@ namespace ORM_Lib
 
 
         // https://softwareengineering.stackexchange.com/questions/142065/creating-database-connections-do-it-once-or-for-each-query open and close everytime - automatic connection pooling in .NET
-        public string ConnectionString { get; }
+        public Func<IDbConnection> Connection { get; }
 
         // decides if the DDL for the creation of the database should be executed
         public Boolean CreateDB { get; }
 
-        public ORMConfiguration(ITypeMapper typeMapper, string connectionString, Boolean createDB)
+        public ORMConfiguration(ITypeMapper typeMapper, Func<IDbConnection> connection, Boolean createDB)
         {
             TypeMapper = typeMapper;
-            ConnectionString = connectionString;
+            Connection = connection;
             CreateDB = createDB;
         }
 

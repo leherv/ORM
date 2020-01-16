@@ -9,7 +9,7 @@ namespace ORM_Example
     {
         private ILazyLoader LazyLoader { get; set; } = new LazyLoader();
 
-        [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_course_id", ForeignKeyFar = "fk_person_id")]
+        [ManyToMany(TableName = "student_course", ForeignKeyNear = "fk_person_id", ForeignKeyFar = "fk_course_id")]
         public ICollection<Course> Courses
         {
             get => LazyLoader.Load(this, ref _courses);

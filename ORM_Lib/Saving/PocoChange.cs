@@ -9,10 +9,15 @@ namespace ORM_Lib.Saving
     {
         public Entity EntityChanged { get; }
         public Dictionary<string, object> NewValues { get; }
+        public object Poco { get; }
 
-        public PocoChange(Dictionary<string, object> newValues)
+        public long Pk { get; }
+
+        public PocoChange(object poco, Dictionary<string, object> newValues, long pk)
         {
             NewValues = newValues;
+            Poco = poco;
+            Pk = pk;
         }
 
 

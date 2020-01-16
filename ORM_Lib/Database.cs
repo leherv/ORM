@@ -6,31 +6,29 @@ using ORM_Lib.Query.Insert;
 using ORM_Lib.Query.Select;
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace ORM_Lib
 {
     internal class Database
     {
-
-        private String _connectionString;
+        private Func<IDbConnection> _connection;
         private DbContext _ctx;
 
-        public Database(String connectionString, DbContext ctx)
+        public Database(Func<IDbConnection> connection, DbContext ctx)
         {
-            _connectionString = connectionString;
+            _connection = connection;
             _ctx = ctx;
         }
 
         public int ExecuteDDL(String ddlString)
         {
             var rowsAffected = -1;
-            using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = _connection.Invoke();
             connection.Open();
-            //using var transaction = connection.BeginTransaction();
-            //using var command = new NpgsqlCommand(ddlString, connection, transaction);
-            using var command = new NpgsqlCommand(ddlString, connection);
-            //int paramValue = 5;
-            //command.Parameters.AddWithValue("@pricePoint", paramValue);
+            using var command = connection.CreateCommand();
+            command.CommandText = ddlString;
+            command.Connection = connection;
             try
             {
                 rowsAffected = command.ExecuteNonQuery();
@@ -50,10 +48,11 @@ namespace ORM_Lib
 
         public IEnumerable<T> ExecuteQuery<T>(SelectQuery<T> query)
         {
-            //TODO: generalize to DbConnection and DbCommand 
-            using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = _connection.Invoke();
             connection.Open();
-            using var command = new NpgsqlCommand(query.AsSqlString(), connection);
+            using var command = connection.CreateCommand();
+            command.CommandText = query.AsSqlString();
+            command.Connection = connection;
             PrepareStatement(query, command);
             var objectReader = new ObjectReader<T>(_ctx, command.ExecuteReader(), query._entityExecutedOn, query._combinedQueryColumns);
             var result = objectReader.Serialize();
@@ -61,52 +60,56 @@ namespace ORM_Lib
             return result;
         }
 
-        public void ExecuteInsert<T>(InsertStatement<T> statement)
+        public List<T> ExecuteInsert<T>(InsertStatement<T> statement)
         {
-            using var connection = new NpgsqlConnection(_connectionString);
+            using var connection = _connection.Invoke();
             connection.Open();
-            using var command = new NpgsqlCommand(statement.AsSqlString(), connection);
+            using var command = connection.CreateCommand();
+            command.CommandText = statement.AsSqlString();
+            command.Connection = connection;
             PrepareStatement(statement, command);
             var reader = command.ExecuteReader();
-            //var hasRows = reader.HasRows;
-            //var f = reader.GetValue(1);
 
-            //// now we set the pks the db returned on our pocos and add them to the cache
-            //var entity = statement._entityExecutedOn;
-            //var pkCol = entity.PkColumn;
-            //var pocos = statement._pocos;
-            //var cache = _ctx.Cache;
+            var insertedPocos = new List<T>();
 
-            //foreach (var poco in pocos)
-            //{
-            //    var pk = reader[pkCol.Name];
-            //    pkCol.PropInfo.SetMethod.Invoke(poco, new[] { pk });
-            //    var cacheEntry = cache.GetOrInsert(entity, (long)pk, poco);
+            // now we set the pks the db returned on our pocos and add them to the cache
+            var entity = statement._entityExecutedOn;
+            var pkCol = entity.PkColumn;
+            var pocos = statement._pocos;
+            var cache = _ctx.Cache;
 
-            //    // now we fill originalPoco
-            //    foreach (var col in entity.Columns)
-            //    {
-            //        if (col.IsDbColumn)
-            //        {
-            //            if (col.IsShadowAttribute)
-            //            {
-            //                //cacheEntry.ShadowAttributes
-            //            }
-            //            else
-            //            {
-            //                var value = col.PropInfo.GetMethod.Invoke(poco, new object[0]);
-            //                // fill the originalEntries with values for changeTracking later
-            //                if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
+            foreach (var poco in pocos)
+            {
+                var pk = reader[pkCol.Name];
+                pkCol.PropInfo.SetMethod.Invoke(poco, new[] { pk });
+                var cacheEntry = cache.GetOrInsert(entity, (long)pk, poco);
 
-            //            }
-            //        }
-            //    }
-            //}
+                // now we fill originalPoco
+                foreach (var col in entity.Columns)
+                {
+                    if (col.IsDbColumn)
+                    {
+                        if (col.IsShadowAttribute)
+                        {
+                            //cacheEntry.ShadowAttributes
+                        }
+                        else
+                        {
+                            var value = col.PropInfo.GetMethod.Invoke(poco, new object[0]);
+                            // fill the originalEntries with values for changeTracking later
+                            if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
+
+                        }
+                    }
+                }
+                insertedPocos.Add((T)cacheEntry.Poco);
+            }
             connection.Close();
+            return insertedPocos;
         }
 
 
-        private void PrepareStatement(ISqlExpression query, NpgsqlCommand command)
+        private void PrepareStatement(ISqlExpression query, IDbCommand command)
         {
             foreach (var namedParam in query.GetNamedParams())
             {

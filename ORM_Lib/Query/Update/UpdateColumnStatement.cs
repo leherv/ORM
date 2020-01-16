@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ORM_Lib.Query.Update
 {
-    class UpdateColumnStatement : ISqlExpression
+    internal class UpdateColumnStatement : ISqlExpression
     {
 
         private string _columnName;

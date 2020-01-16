@@ -47,18 +47,17 @@ namespace ORM_Lib.Ddl
         {
             foreach (var entity in schema.Entities)
             {
-                foreach (var column in entity.Columns.Where(c => c.IsDbColumn))
+                foreach (var column in entity.Columns)
                 {
 
                     // constraints
-
-                    foreach (var constraint in column.Constraints)
-                    {
-                        if (constraint.GetType() == typeof(Pk))
-                        {
-                            ddlBuilder.AppendLine(BuildPrimaryKey(entity.Name, new[] { column.Name }) + ";");
-                        }
-                    }
+                    //foreach (var constraint in column.Constraints)
+                    //{
+                    //    if (constraint.GetType() == typeof(Pk))
+                    //    {
+                    //        ddlBuilder.AppendLine(BuildPrimaryKey(entity.Name, new[] { column.Name }) + ";");
+                    //    }
+                    //}
 
                     // now relation
                     var relation = column.Relation;

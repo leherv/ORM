@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace ORM_Lib.Query.Update
 {
-    class UpdateStatement<T> : ISqlExpression
+    internal class UpdateStatement : ISqlExpression
     {
 
         private Entity _entity;

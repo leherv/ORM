@@ -7,12 +7,15 @@ namespace ORM_Lib.Ddl
     {
         public static string BuildDdl(Column column)
         {
-            return $"{column.Name} {column.DbType.DdlDbType}";
+            var sql = $"{column.Name} {column.DbType.DdlDbType}";
+            if (column.IsPkColumn)
+                sql += " PRIMARY KEY";
+            return sql;
         }
 
         public static string BuildManyToManyDdl(string fkName, ITypeMapper typeMapper)
         {
-            return $"{fkName} {typeMapper.GetForeignKeyType()}";
+            return $"{fkName} {typeMapper.GetForeignKeyType()} ";
         }
     }
 }

@@ -13,21 +13,19 @@ namespace ORM_Lib.Query.Insert
         private Entity _entityExecutedOn;
         private List<Column> _insertColumns;
         private IEnumerable<T> _pocos;
-        private List<Column> _sEInsertColumns;
-        private Entity _superEntity;
+        private WithStatement _with;
 
         public InsertStatementBuilder(DbContext ctx, Type intoType, IEnumerable<T> pocos)
         {
             _ctx = ctx;
             _entityExecutedOn = _ctx.Schema.GetByType(intoType);
             _pocos = pocos;
-
-
             if (_entityExecutedOn.SuperClasses.Any())
             {
-                _superEntity = _entityExecutedOn.SuperClasses.Select(superCl => _ctx.Schema.GetByType(superCl)).First();
-                _sEInsertColumns = _superEntity.Columns.Where(c => c.IsDbColumn && !c.IsPkColumn).ToList();
+                var superEntity = _entityExecutedOn.SuperClasses.Select(superCl => _ctx.Schema.GetByType(superCl)).First();
+                var sEInsertColumns = superEntity.Columns.Where(c => c.IsDbColumn && !c.IsPkColumn).ToList();
                 _insertColumns = _entityExecutedOn.Columns.Where(c => c.IsDbColumn).ToList();
+                _with = new WithStatement(new InsertStatement<T>(_ctx, superEntity, sEInsertColumns, null, _pocos.ToList()));
             }
             else
             {
@@ -40,9 +38,8 @@ namespace ORM_Lib.Query.Insert
             return new InsertStatement<T>(
                     _ctx,
                     _entityExecutedOn,
-                    _superEntity,
                     _insertColumns,
-                    _sEInsertColumns,
+                    _with,
                     _pocos.ToList()
                 );
         }

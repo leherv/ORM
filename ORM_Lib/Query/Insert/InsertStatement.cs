@@ -10,61 +10,37 @@ namespace ORM_Lib.Query.Insert
     public class InsertStatement<T> : ISqlExpression
     {
         internal Entity _entityExecutedOn;
-        internal Entity _superEntity;
         internal List<Column> _insertColumns;
-        internal List<Column> _sEInsertColumns;
         internal List<T> _pocos;
         internal List<List<NamedParameter>> _namedParameters;
-        internal List<List<NamedParameter>> _sENamedParameters;
         internal DbContext _ctx;
+        internal WithStatement _with;
 
-        internal InsertStatement(DbContext ctx, Entity entityExecutedOn, Entity superEntity, List<Column> insertColumns, List<Column> sEInsertColumns, List<T> pocos)
+        internal InsertStatement(DbContext ctx, Entity entityExecutedOn, List<Column> insertColumns, WithStatement withStatement, List<T> pocos)
         {
             _ctx = ctx;
             _entityExecutedOn = entityExecutedOn;
-            _superEntity = superEntity;
             _insertColumns = insertColumns;
-            _sEInsertColumns = sEInsertColumns;
             _pocos = pocos;
-            _namedParameters = BuildNamedParams(_insertColumns.Where(c => !c.IsPkColumn).ToList());
-            // so we dont include the id in the VALUES part (we inject the result of evaluating the WITH there)
-            _sENamedParameters = BuildNamedParams(_sEInsertColumns);
+            _namedParameters = BuildNamedParams(_insertColumns);
+            _with = withStatement;
         }
 
-        public void Execute()
+        public List<T> Execute()
         {
             Database db = _ctx.Database;
-            db.ExecuteInsert(this);
+            return db.ExecuteInsert(this);
         }
-
 
         public string AsSqlString()
         {
-            if (_superEntity != null)
-            {
-                var insert = "";
-                var alias = RandomStringGenerator.RandomString(8);
-                var with = $"WITH {alias} AS (" +
-                            $"INSERT INTO {_superEntity.Name} ({BuildInsertColumns(_sEInsertColumns)}) " +
-                            $"VALUES " +
-                            $"{BuildValues(_sENamedParameters)} " +
-                            $"RETURNING { _entityExecutedOn.PkColumn.Name}) ";
-                insert += with;
-            
-
-                insert += $"INSERT INTO {_entityExecutedOn.Name} ({BuildInsertColumns(_insertColumns)}) " +
-                          $"VALUES " +
-                          $"{BuildValues(_namedParameters, alias)} " +
-                          $"RETURNING {_entityExecutedOn.PkColumn.Name}";
-                return insert;
-            }
-            else
-            {
-                return $"INSERT INTO {_entityExecutedOn.Name} ({BuildInsertColumns(_insertColumns)}) " +
-                   $"VALUES " +
-                   $"{BuildValues(_namedParameters)} " +
-                   $"RETURNING {_entityExecutedOn.PkColumn.Name}";
-            }
+            var insert = "";
+            if (_with != null) insert = _with.AsSqlString();
+            insert += $"INSERT INTO {_entityExecutedOn.Name} ({BuildInsertColumns(_insertColumns)}) " +
+                      $"VALUES ";
+            insert += _with != null ? BuildValues(_namedParameters, _with.Alias) : BuildValues(_namedParameters);
+            insert += $" RETURNING {_entityExecutedOn.PkColumn.Name}";
+            return insert;
         }
 
         private string SelectAlias(string alias, int offset)
@@ -148,7 +124,8 @@ namespace ORM_Lib.Query.Insert
 
         public IEnumerable<NamedParameter> GetNamedParams()
         {
-            return _namedParameters.SelectMany(singleInsert => singleInsert).Concat(_sENamedParameters.SelectMany(singleInsert => singleInsert));
+            var para = _namedParameters.SelectMany(singleInsert => singleInsert);
+            return _with != null ? para.Concat(_with.GetNamedParams()) : para;
         }
 
         void ISqlExpression.SetContextInformation(Entity entity)

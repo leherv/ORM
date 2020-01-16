@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
+using ORM_Lib.Attributes;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Query;
 using ORM_Lib.Query.Update;
 using ORM_Lib.Query.Where;
 using ORM_Lib.TypeMapper;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Data;
 
 namespace ORM_Tests.ORM_Lib.Query.Update
 {
@@ -54,7 +54,7 @@ namespace ORM_Tests.ORM_Lib.Query.Update
         [Test]
         public void TestSimpleStatement()
         {
-            var updateStatement = new UpdateStatement<TestEntity>(
+            var updateStatement = new UpdateStatement(
                 TestEntity,
                 new List<IWhereFilter>(),
                 new List<UpdateColumnStatement>() {
@@ -67,7 +67,7 @@ namespace ORM_Tests.ORM_Lib.Query.Update
         [Test]
         public void TestWithWhere()
         {
-            var updateStatement = new UpdateStatement<TestEntity>(
+            var updateStatement = new UpdateStatement(
                 TestEntity,
                 new List<IWhereFilter>() { WhereFilters[0] },
                 new List<UpdateColumnStatement>() { UpdateStatements[1] }
@@ -79,7 +79,7 @@ namespace ORM_Tests.ORM_Lib.Query.Update
         [Test]
         public void TestWithMultipleUpdate()
         {
-            var updateStatement = new UpdateStatement<TestEntity>(
+            var updateStatement = new UpdateStatement(
                 TestEntity,
                 new List<IWhereFilter>() { WhereFilters[0] },
                 UpdateStatements

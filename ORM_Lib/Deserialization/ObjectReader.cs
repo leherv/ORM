@@ -12,14 +12,14 @@ namespace ORM_Lib.Deserialization
     class ObjectReader<T>
     {
 
-        private DbDataReader DataReader { get; }
+        private IDataReader DataReader { get; }
         private Entity Entity { get; }
 
         private List<Column> QueriedColumns { get; }
 
         private DbContext _ctx;
 
-        public ObjectReader(DbContext ctx, DbDataReader dataReader, Entity entity, List<Column> queriedColumns)
+        public ObjectReader(DbContext ctx, IDataReader dataReader, Entity entity, List<Column> queriedColumns)
         {
             DataReader = dataReader;
             Entity = entity;
