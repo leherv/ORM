@@ -13,8 +13,9 @@ namespace ORM_Lib.Saving
 
         public long Pk { get; }
 
-        public PocoChange(object poco, Dictionary<string, object> newValues, long pk)
+        public PocoChange(object poco, Entity entityChanged, Dictionary<string, object> newValues, long pk)
         {
+            EntityChanged = entityChanged;
             NewValues = newValues;
             Poco = poco;
             Pk = pk;

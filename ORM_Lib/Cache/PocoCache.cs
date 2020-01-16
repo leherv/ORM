@@ -11,14 +11,12 @@ namespace ORM_Lib.Cache
     {
         private Dictionary<Entity, Dictionary<long, CacheEntry>> _entityPocoCache = new Dictionary<Entity, Dictionary<long, CacheEntry>>();
 
-
         public CacheEntry GetOrInsert(Entity entity, long primaryKey, object poco)
         {
             var pocoCache = _entityPocoCache.GetOrInsert(entity, new Dictionary<long, CacheEntry>());
             var cacheEntry = pocoCache.GetOrInsert(primaryKey, new CacheEntry(poco, entity));
             return cacheEntry;
         }
-
 
         public List<PocoChange> GetChanges()
         {
@@ -31,14 +29,11 @@ namespace ORM_Lib.Cache
                     // if there are no changes to the cachedobject we dont add it to the list of pocoChanges
                     var newValues = cacheEntry.CalculateChange();
                     if (newValues.Count > 0)
-                        changes.Add(new PocoChange(cacheEntry.Poco, newValues, key));
+                        changes.Add(new PocoChange(cacheEntry.Poco, entity, newValues, key));
                 }
             }
             return changes;
         }
-
-        
-    
 
     }
 }

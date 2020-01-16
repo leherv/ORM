@@ -40,5 +40,18 @@ namespace ORM_Lib.DbSchema
             return $"{Name.First()}{i}";
         }
 
+
+        public IEnumerable<Column> SuperEntityColumns()
+        {
+            return SuperClasses
+                .Select(sType => Schema.GetByType(sType))
+                .SelectMany(sE => sE.Columns);
+        }
+
+        public IEnumerable<Column> CombinedColumns()
+        {
+            return Columns.Concat(SuperEntityColumns());
+        }
+
     }
 }

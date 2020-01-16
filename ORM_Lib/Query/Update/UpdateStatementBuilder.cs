@@ -22,11 +22,7 @@ namespace ORM_Lib.Query.Update
             _entity = changes.EntityChanged;
         }
 
-        private List<UpdateColumnStatement> BuildUpdateColumns(IEnumerable<KeyValuePair<string, object>> changes)
-        {
-            //TODO: maybe use constructor with dbtype defined if problems occur
-            return changes.Select(c => new UpdateColumnStatement(c.Key, new ValueExpression(c.Value))).ToList();
-        }
+
 
         public List<UpdateStatement> Build()
         {
@@ -35,26 +31,24 @@ namespace ORM_Lib.Query.Update
             if (_entity.SuperClasses.Any())
             {
                 var superEntity = _entity.SuperClasses.Select(superCl => _ctx.Schema.GetByType(superCl)).First();
-                var superEntityChanges = _changes.NewValues
-                    .Where(pair => superEntity.GetColumnByName(pair.Key) != null);
-                result.Add(new UpdateStatement(
-                    superEntity,
-                    new List<IWhereFilter>() { BuildWhere(superEntity.PkColumn.Name, _changes.Pk) },
-                    BuildUpdateColumns(superEntityChanges)
-                ));
+                var updateColumnStatementsS = BuildUpdateColumns(superEntity);
+                if (updateColumnStatementsS != null && updateColumnStatementsS.Count > 0)
+                    result.Add(new UpdateStatement(
+                        superEntity,
+                        new List<IWhereFilter>() { BuildWhere(superEntity.PkColumn.Name, _changes.Pk) },
+                        updateColumnStatementsS
+                    ));
             }
 
-            var entityChanges = _changes.NewValues
-                  .Where(pair => _entity.GetColumnByName(pair.Key) != null);
-            var where = BinaryExpression.Eq(
-                   new ColumnExpression(_entity.PkColumn.Name),
-                   new ValueExpression(_changes.Pk)
-               );
-            result.Add(new UpdateStatement(
+            var updateColumnStatements = BuildUpdateColumns(_entity);
+            if (updateColumnStatements != null && updateColumnStatements.Count > 0)
+            {
+                result.Add(new UpdateStatement(
                     _entity,
                     new List<IWhereFilter>() { BuildWhere(_entity.PkColumn.Name, _changes.Pk) },
-                    BuildUpdateColumns(entityChanges)
-            ));
+                    updateColumnStatements
+                ));
+            }
             return result;
         }
 
@@ -64,6 +58,19 @@ namespace ORM_Lib.Query.Update
             return BinaryExpression.Eq(
                     new ColumnExpression(columnName),
                     new ValueExpression(value));
+        }
+
+        private List<UpdateColumnStatement> BuildUpdateColumns(Entity entity)
+        {
+            var entityChanges = _changes.NewValues
+                   .Where(pair => entity.GetColumnByName(pair.Key) != null);
+            return entityChanges
+                .Select(c => new UpdateColumnStatement(
+                    c.Key,
+                    new ValueExpression(
+                        c.Value.GetType().IsEnum ? c.Value.ToString() : c.Value
+                    )))
+                .ToList();
         }
     }
 }

@@ -40,10 +40,9 @@ namespace ORM_Lib
             var changes = Cache.GetChanges();
             foreach(var change in changes)
             {
-                //TODO continue here (maybe have to add alias number in foreach so we can update in one query!
                 updateStatements.AddRange(new UpdateStatementBuilder(this, change).Build());
             }
-            
+            Database.SaveChanges(new UpdateBatch(updateStatements));
         }
         
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)

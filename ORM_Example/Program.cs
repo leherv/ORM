@@ -23,12 +23,13 @@ namespace ORM_Example
                 })
                 .Build()
                 .Execute();
-
             var teacher = teachers.First();
             teacher.FirstName = "test_changed";
+            var teacher2 = teachers.ElementAt(1);
+            teacher2.Gender = Gender.MALE;
             dbContext.SaveChanges();
 
-
+            
 
             //dbContext.Persons
             //    .Add(new[] {

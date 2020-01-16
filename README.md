@@ -12,18 +12,18 @@ First you have to define a DbContext. Your DbContext HAS to extend the DbContext
 
 The ORMConfiguration consists of 
 * a ITypeMapper that you can provide or you can use the one provided (only for Postgres DBs)
-* a connectionstring - the example uses a ConnectionStringBuilder
+* a lambda returning a IDbConnection - the example uses a ConnectionStringBuilder
 * a boolean dictating if the database should be created (Code First) 
 
 For every class you want to add to the database and later want to interact with you have to create a DBSet.
 
 ```
- public class ExampleDbContext : DbContext
+    public class ExampleDbContext : DbContext
     {
       
         protected override ORMConfiguration Configuration => new ORMConfiguration(
             new PostgresTypeMapper(),
-            ConnectionStringBuilder.connectionString(),
+            () => new NpgsqlConnection(ConnectionStringBuilder.connectionString()),
             false
         );
 
@@ -256,8 +256,33 @@ Inserting objects into the database works like this:
         .Execute();
 ```
 
+Add returns the inserted objects with the Pk from the Database. So you can continue and directly work with them without having to re-fetch.
+```
+    var teachers = dbContext.Teachers
+        .Add(new[] {
+        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+        })
+        .Build()
+        .Execute();
+```
+
+
 #### Saving
 
+Saving changes is very straight forward. Just call the SaveChanges method on the Database-Context.
+```
+    var teachers = dbContext.Teachers
+        .Add(new[] {
+        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+        })
+        .Build()
+        .Execute();
+    var teacher = teachers.First();
+    teacher.FirstName = "test_changed";
+    dbContext.SaveChanges();
+```
 
 
 

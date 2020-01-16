@@ -1,12 +1,13 @@
-﻿using Npgsql;
-using ORM_Lib.DbSchema;
+﻿using ORM_Lib.Cache;
 using ORM_Lib.Deserialization;
 using ORM_Lib.Query;
 using ORM_Lib.Query.Insert;
 using ORM_Lib.Query.Select;
+using ORM_Lib.Query.Update;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace ORM_Lib
 {
@@ -28,7 +29,6 @@ namespace ORM_Lib
             connection.Open();
             using var command = connection.CreateCommand();
             command.CommandText = ddlString;
-            command.Connection = connection;
             try
             {
                 rowsAffected = command.ExecuteNonQuery();
@@ -52,7 +52,6 @@ namespace ORM_Lib
             connection.Open();
             using var command = connection.CreateCommand();
             command.CommandText = query.AsSqlString();
-            command.Connection = connection;
             PrepareStatement(query, command);
             var objectReader = new ObjectReader<T>(_ctx, command.ExecuteReader(), query._entityExecutedOn, query._combinedQueryColumns);
             var result = objectReader.Serialize();
@@ -66,11 +65,8 @@ namespace ORM_Lib
             connection.Open();
             using var command = connection.CreateCommand();
             command.CommandText = statement.AsSqlString();
-            command.Connection = connection;
             PrepareStatement(statement, command);
-            var reader = command.ExecuteReader();
-
-            var insertedPocos = new List<T>();
+            using var reader = command.ExecuteReader();
 
             // now we set the pks the db returned on our pocos and add them to the cache
             var entity = statement._entityExecutedOn;
@@ -78,14 +74,16 @@ namespace ORM_Lib
             var pocos = statement._pocos;
             var cache = _ctx.Cache;
 
-            foreach (var poco in pocos)
+            var enumerator = pocos.GetEnumerator();
+            while (reader.Read() && enumerator.MoveNext())
             {
+                var poco = enumerator.Current;
                 var pk = reader[pkCol.Name];
                 pkCol.PropInfo.SetMethod.Invoke(poco, new[] { pk });
                 var cacheEntry = cache.GetOrInsert(entity, (long)pk, poco);
 
                 // now we fill originalPoco
-                foreach (var col in entity.Columns)
+                foreach (var col in entity.CombinedColumns())
                 {
                     if (col.IsDbColumn)
                     {
@@ -98,14 +96,23 @@ namespace ORM_Lib
                             var value = col.PropInfo.GetMethod.Invoke(poco, new object[0]);
                             // fill the originalEntries with values for changeTracking later
                             if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
-
                         }
                     }
                 }
-                insertedPocos.Add((T)cacheEntry.Poco);
+                LazyLoadInjector.InjectLazyLoader<T>(poco, _ctx, statement._entityExecutedOn);
             }
             connection.Close();
-            return insertedPocos;
+            return pocos;
+        }
+
+        public void SaveChanges(UpdateBatch updateBatch)
+        {
+            using var connection = _connection.Invoke();
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = updateBatch.AsSqlString();
+            PrepareStatement(updateBatch, command);
+            using var reader = command.ExecuteReader();
         }
 
 
