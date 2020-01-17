@@ -89,7 +89,8 @@ namespace ORM_Lib
                     {
                         if (col.IsShadowAttribute)
                         {
-                            //cacheEntry.ShadowAttributes
+                            // TODO: maybe no entry?
+                            cacheEntry.ShadowAttributes[col.Name] = null;
                         }
                         else
                         {

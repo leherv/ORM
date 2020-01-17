@@ -9,12 +9,18 @@ namespace ORM_Lib.Cache
 {
     class PocoCache
     {
+        private DbContext _ctx;
         private Dictionary<Entity, Dictionary<long, CacheEntry>> _entityPocoCache = new Dictionary<Entity, Dictionary<long, CacheEntry>>();
+
+        public PocoCache(DbContext ctx)
+        {
+            _ctx = ctx;
+        }
 
         public CacheEntry GetOrInsert(Entity entity, long primaryKey, object poco)
         {
             var pocoCache = _entityPocoCache.GetOrInsert(entity, new Dictionary<long, CacheEntry>());
-            var cacheEntry = pocoCache.GetOrInsert(primaryKey, new CacheEntry(poco, entity));
+            var cacheEntry = pocoCache.GetOrInsert(primaryKey, new CacheEntry(poco, entity, _ctx));
             return cacheEntry;
         }
 

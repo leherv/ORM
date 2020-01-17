@@ -18,7 +18,7 @@ namespace ORM_Lib
         internal Schema Schema { get; }
         internal Database Database { get; }
 
-        internal PocoCache Cache { get; } = new PocoCache();
+        internal PocoCache Cache { get; }
 
         protected DbContext()
         {
@@ -32,6 +32,7 @@ namespace ORM_Lib
             {
                 var rows = Database.ExecuteDDL(Ddl.SchemaSqlBuilder.BuildDdl(Schema, Configuration.TypeMapper));
             }
+            Cache = new PocoCache(this);
         }
 
         public void SaveChanges()

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ORM_Lib.DbSchema
 {
+    [DebuggerDisplay("{Name}")]
     internal class Entity
     {
         
