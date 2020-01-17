@@ -19,7 +19,12 @@ namespace ORM_Lib.Cache
             // if it is null we dont have a ladyloader in this object and dont need to do more
             if (lazyLoaderProperty != null)
             {
-                lazyLoaderProperty.GetSetMethod(true).Invoke(poco, new object[] { new InternalLazyLoader(ctx, entity) });
+                var lazyLoader = lazyLoaderProperty.GetGetMethod(true).Invoke(poco, new object[0]);
+                // cool way to check and set at the same time!
+                if(lazyLoader is LazyLoader lazy)
+                {
+                    lazy.InternalLazyLoader = new InternalLazyLoader(ctx, entity);
+                }
             }
         }
     }

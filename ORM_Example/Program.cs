@@ -45,8 +45,7 @@ namespace ORM_Example
             var teacher = teachers.First();
 
             // bedeutet eigentlich, dass auf course der pk von teacher auf den fk gesetzt werden muss
-            teacher.Courses = course;
-
+            course.ForEach(c => teacher.Courses.Add(c));
             // andere richtung überlegen!
 
             dbContext.SaveChanges();

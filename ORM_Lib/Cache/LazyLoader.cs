@@ -13,14 +13,14 @@ namespace ORM_Lib.Cache
         {
             // user uses his own collection without database or it was already loaded
             if (loadTo != null) return loadTo;
-            return InternalLazyLoader?.Load(poco, ref loadTo) ?? loadTo;
+            return InternalLazyLoader?.Load(poco, ref loadTo, name) ?? loadTo;
 
         }
 
         public T Load<T>(object poco, ref T loadTo, [CallerMemberName] string name = "")
         {
             if (loadTo != null || InternalLazyLoader == null) return loadTo;
-            return InternalLazyLoader.Load(poco, ref loadTo) ?? loadTo;
+            return InternalLazyLoader.Load(poco, ref loadTo, name) ?? loadTo;
         }
     }
 }

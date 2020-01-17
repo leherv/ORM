@@ -22,14 +22,16 @@ namespace ORM_Lib.Cache
         }
 
 
-        public ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo, [CallerMemberName] string name = "")
+        public ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo, string name)
         {
             // should fail if there is no first
             var column = _entity.Columns.Where(c => c.PropInfo.Name == name).First();
             var relation = column.Relation;
             if (relation.GetType() == typeof(OneToMany))
             {
-                return LoadOneToMany<T>(poco, column, ref loadTo, relation as OneToMany);
+                var result = LoadOneToMany<T>(poco, column, ref loadTo, relation as OneToMany);
+                loadTo = result;
+                return loadTo;
             }
             else if (relation.GetType() == typeof(Fk))
             {
@@ -37,19 +39,23 @@ namespace ORM_Lib.Cache
             }
             else if (relation.GetType() == typeof(ManyToMany))
             {
-                return LoadManyToMany<T>(poco, column, ref loadTo, relation as ManyToMany);
+                var result = LoadManyToMany<T>(poco, column, ref loadTo, relation as ManyToMany);
+                loadTo = result;
+                return loadTo;
             }
             throw new NotImplementedException("RelationType not supported");
         }
 
-        public T Load<T>(object poco, ref T loadTo, [CallerMemberName] string name = "")
+        public T Load<T>(object poco, ref T loadTo, string name)
         {
             var column = _entity.Columns.Where(c => c.PropInfo.Name == name).First();
             var relation = column.Relation;
 
             if (relation.GetType() == typeof(ManyToOne))
             {
-                return LoadManyToOne<T>(poco, column, ref loadTo, relation as ManyToOne);
+                var result = LoadManyToOne<T>(poco, column, ref loadTo, relation as ManyToOne);
+                loadTo = result;
+                return loadTo;
             }
             throw new NotImplementedException("RelationType not supported");
         }
