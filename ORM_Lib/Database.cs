@@ -11,6 +11,7 @@ using System.Linq;
 
 namespace ORM_Lib
 {
+    // TODO: transactions
     internal class Database
     {
         private Func<IDbConnection> _connection;
@@ -43,7 +44,6 @@ namespace ORM_Lib
             }
             connection.Close();
             return rowsAffected;
-
         }
 
         public IEnumerable<T> ExecuteQuery<T>(SelectQuery<T> query)
@@ -113,7 +113,7 @@ namespace ORM_Lib
             using var command = connection.CreateCommand();
             command.CommandText = updateBatch.AsSqlString();
             PrepareStatement(updateBatch, command);
-            using var reader = command.ExecuteReader();
+            command.ExecuteNonQuery();
         }
 
 

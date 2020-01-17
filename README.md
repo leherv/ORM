@@ -161,7 +161,7 @@ The Following Relations are supported:
 * **1:n --> [OneToMany(mappedByColumnName="")]**
 * **n:1 --> [ManyToOne]**
 
-All those relations are lazily loaded. For this to succeed you have to add:
+All these relations are lazily loaded. For this to succeed you have to add:
 
 ```
  private ILazyLoader LazyLoader { get; set; } = new LazyLoader();
@@ -236,8 +236,7 @@ You can also use two ValueExpressions (although you could just drop the whole Wh
 #### Adding
 Inserting objects into the database works like this:
 
-**Note:** ManyToOne, OneToMany, and ManyToMany can not be inserted initally and have to be added as managed objects and then be saved with dbContext.SaveChanges().
-(See Important Mentions)
+
 
 ##### Single Object
 ```
@@ -269,43 +268,10 @@ Add returns the inserted objects with the Pk from the Database. So you can conti
         .Execute();
 ```
 
-
-#### Saving
-
-Saving changes is very straight forward. Just call the SaveChanges method on the Database-Context.
-```
-    var teachers = dbContext.Teachers
-        .Add(new[] {
-        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
-        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
-        })
-        .Build()
-        .Execute();
-    var teacher = teachers.First();
-    teacher.FirstName = "test_changed";
-    dbContext.SaveChanges();
-```
-
-
-#### Important Mentions
-
-* Caution when changing you need to save before re-fetching the changed object!!
-```
-    var persons = dbContext.Persons.Select(null).Build().Execute();
-    // firstName from database = "john"
-    var person = persons.First();
-    person.FirstName = "Tom";
-
-    var persons2 = dbContext.Persons.Select(null).Build().Execute();
-    // firstName = "john" as the change was not saved!
-    var firstName = person.FirstName;
-```
-
-
-
-Relations to other objects have to be added after the object to relate has been added to the database (is managed).
+Relations to other objects have to be added after the object has been added to the database (is managed).
 Here is an example:
 
+###### ManyToOne
 ```
     var course = dbContext.Courses
         .Add(new Course(true, "best course"))
@@ -341,10 +307,60 @@ Here is an example:
     dbContext.SaveChanges();
 ```
 
+###### OneToMany
+This makes the same change in the database as ManyToOne did.
+
+```
+    var course = dbContext.Courses
+        .Add(new Course(true, "best course"))
+        .Build()
+        .Execute()
+        .First();
+
+    var teacher = dbContext.Teachers
+        .Add(new[] {
+        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+        })
+        .Build()
+        .Execute()
+        .First();
+
+    teacher.Courses.Add(course);
+    dbContext.SaveChanges();
+```
 
 
+#### Saving
+
+Saving changes is very straight forward. Just call the SaveChanges method on the Database-Context.
+```
+    var teachers = dbContext.Teachers
+        .Add(new[] {
+        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+        })
+        .Build()
+        .Execute();
+    var teacher = teachers.First();
+    teacher.FirstName = "test_changed";
+    dbContext.SaveChanges();
+```
 
 
+#### Important Mentions
+
+* Caution when changing you need to save before re-fetching the changed object!!
+```
+    var persons = dbContext.Persons.Select(null).Build().Execute();
+    // firstName from database = "john"
+    var person = persons.First();
+    person.FirstName = "Tom";
+
+    var persons2 = dbContext.Persons.Select(null).Build().Execute();
+    // firstName = "john" as the change was not saved!
+    var firstName = person.FirstName;
+```
 
 * Inheritance is supported but only 1 level (Example-Project: Teacher - Person)
 

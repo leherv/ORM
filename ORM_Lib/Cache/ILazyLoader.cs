@@ -12,5 +12,7 @@ namespace ORM_Lib.Cache
     {
         ICollection<T> Load<T>(object poco, ref ICollection<T> loadTo, [CallerMemberName] string name = "");
         T Load<T>(object poco, ref T loadTo, [CallerMemberName] string name = "");
+
+        bool ShouldLoad<T>(T loadTo);
     }
 }

@@ -1,6 +1,9 @@
-﻿using ORM_Lib.DbSchema;
+﻿using ORM_Lib.Attributes;
+using ORM_Lib.DbSchema;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ORM_Lib.Cache
 {
@@ -18,6 +21,40 @@ namespace ORM_Lib.Cache
             _entity = entity;
             _ctx = ctx;
         }
+
+
+        public void PrepareForCollectChanges()
+        {
+            var pk = _entity.PkColumn.PropInfo.GetMethod.Invoke(Poco, new object[0]);
+            foreach (var col in _entity.CombinedColumns().Where(c => c.Relation?.GetType() == typeof(OneToMany)))
+            {
+                //get the list
+                var objects = col.PropInfo.GetMethod.Invoke(Poco, new object[0]);
+                if(objects != null)
+                {
+                    // convert to real list
+                    var objs = objects as ICollection;
+                    if(objs != null && objs.Count > 0)
+                    {
+                        var relation = col.Relation as OneToMany;
+                        var entity = relation.MappedByEntity;
+                        var toSet = relation.MappedByProperty;
+
+                        foreach (var obj in objs)
+                        {
+                            var objPk = entity.PkColumn.PropInfo.GetMethod.Invoke(obj, new object[0]);
+                            if (objPk == null || ValuesEqual(0L, objPk)) throw new InvalidOperationException("Trying to add an unmanaged object!");
+
+                            // now we set the object to our current Poco 
+                            toSet.SetMethod.Invoke(obj, new object[] { Poco });
+                        }
+                    }
+                }
+                
+            }
+        }
+       
+
 
         public Dictionary<string, object> CalculateChange()
         {

@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using ORM_Lib;
-using ORM_Lib.Ddl;
-using ORM_Lib.Query;
-using ORM_Lib.Query.Where;
 
 namespace ORM_Example
 {
@@ -15,41 +9,11 @@ namespace ORM_Example
         {
             var dbContext = new ExampleDbContext();
 
-            //Adding(leave out and use testData.sql for already inserted tests)
-            var teachers = dbContext.Teachers
-                .Add(new[] {
-                new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
-                new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
-                })
-                .Build()
-                .Execute();
-
-            var cl = dbContext.Classes
-                .Add(new Class("1A"))
-                .Build()
-                .Execute();
-
-            var student = dbContext.Students
-                .Add(new Student("test_name3", "test_firstname3", Gender.MALE, new DateTime(2003, 3, 3)))
-                .Build()
-                .Execute();
-
-            var course = dbContext.Courses
-                .Add(new Course(true, "best course"))
-                .Build()
-                .Execute()
-                .First();
-
-            dbContext.SaveChanges();
-
-            // only managed pocos can be added as relations
-            var teacher = teachers.First();
-
-            // bedeutet eigentlich, dass auf course der pk von teacher auf den fk gesetzt werden muss
-            teacher.Courses.Add(course);
+            ShowCase1(dbContext);
+          
 
 
-            dbContext.SaveChanges();
+        
 
             //dbContext.Persons
             //    .Add(new[] {
@@ -114,5 +78,46 @@ namespace ORM_Example
             //var firstName = person.FirstName;
 
         }
+
+
+        private static void ShowCase1(ExampleDbContext dbContext)
+        {
+            var teachers = dbContext.Teachers
+                .Add(new[] {
+                new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+                new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+                })
+                .Build()
+                .Execute();
+
+            var cl = dbContext.Classes
+                .Add(new Class("1A"))
+                .Build()
+                .Execute();
+
+            var student = dbContext.Students
+                .Add(new Student("test_name3", "test_firstname3", Gender.MALE, new DateTime(2003, 3, 3)))
+                .Build()
+                .Execute();
+
+            var course = dbContext.Courses
+                .Add(new Course(true, "best course"))
+                .Build()
+                .Execute()
+                .First();
+
+            dbContext.SaveChanges();
+
+            var teacher = teachers.First();
+
+            //course.Teacher = teacher;
+            // equivalent result 
+            teacher.Courses.Add(course);
+
+
+            dbContext.SaveChanges();
+
+        }
+
     }
 }
