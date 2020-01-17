@@ -31,11 +31,10 @@ namespace ORM_Example
         }
         private ICollection<Student> _students;
 
-        public Course(bool active, Teacher teacher, List<Student> students)
+        public Course(bool active, string name)
         {
             Active = active;
-            Teacher = teacher;
-            Students = students;
+            Name = name;
         }
 
         public Course() { }

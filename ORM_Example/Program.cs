@@ -23,13 +23,33 @@ namespace ORM_Example
                 })
                 .Build()
                 .Execute();
-            var teacher = teachers.First();
-            teacher.FirstName = "test_changed";
-            var teacher2 = teachers.ElementAt(1);
-            teacher2.Gender = Gender.MALE;
+
+            var cl = dbContext.Classes
+                .Add(new Class("1A"))
+                .Build()
+                .Execute();
+
+            var student = dbContext.Students
+                .Add(new Student("test_name3", "test_firstname3", Gender.MALE, new DateTime(2003, 3, 3)))
+                .Build()
+                .Execute();
+
+            var course = dbContext.Courses
+                .Add(new Course(true, "best course"))
+                .Build()
+                .Execute();
+
             dbContext.SaveChanges();
 
-            
+            // only managed pocos can be added as relations
+            var teacher = teachers.First();
+
+            // bedeutet eigentlich, dass auf course der pk von teacher auf den fk gesetzt werden muss
+            teacher.Courses = course;
+
+            // andere richtung überlegen!
+
+            dbContext.SaveChanges();
 
             //dbContext.Persons
             //    .Add(new[] {

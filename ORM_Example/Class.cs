@@ -27,11 +27,9 @@ namespace ORM_Example
         }
         private Teacher _teacher;
 
-        public Class(string name, List<Student> students, Teacher teacher)
+        public Class(string name)
         {
             Name = name;
-            Students = students;
-            Teacher = teacher;
         }
 
         public Class() { }
