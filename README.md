@@ -236,13 +236,15 @@ You can also use two ValueExpressions (although you could just drop the whole Wh
 #### Adding
 Inserting objects into the database works like this:
 
+**Note:** ManyToOne, OneToMany, and ManyToMany can not be inserted initally and have to be added as managed objects and then be saved with dbContext.SaveChanges().
+(See Important Mentions)
+
 ##### Single Object
 ```
     dbContext.Persons
         .Add(new Person("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1)))
         .Build()
         .Execute();
-
 ```
 
 ##### Multiple Objects
@@ -285,10 +287,9 @@ Saving changes is very straight forward. Just call the SaveChanges method on the
 ```
 
 
-
-
 #### Important Mentions
 
+* Caution when changing you need to save before re-fetching the changed object!!
 ```
     var persons = dbContext.Persons.Select(null).Build().Execute();
     // firstName from database = "john"
@@ -299,6 +300,51 @@ Saving changes is very straight forward. Just call the SaveChanges method on the
     // firstName = "john" as the change was not saved!
     var firstName = person.FirstName;
 ```
+
+
+
+Relations to other objects have to be added after the object to relate has been added to the database (is managed).
+Here is an example:
+
+```
+    var course = dbContext.Courses
+        .Add(new Course(true, "best course"))
+        .Build()
+        .Execute()
+        .First();
+
+    course.Teacher = new Teacher("unmanaged", "unmanaged", Gender.MALE, new DateTime(), 2500);
+    
+    // this will throw because the teacher is not managed yet!
+    dbContext.SaveChanges();
+```
+
+```
+    var course = dbContext.Courses
+        .Add(new Course(true, "best course"))
+        .Build()
+        .Execute()
+        .First();
+
+    var teacher = dbContext.Teachers
+        .Add(new[] {
+        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+        })
+        .Build()
+        .Execute()
+        .First();
+
+    course.Teacher = teacher;
+
+    // this will work as the teacher is a managed object
+    dbContext.SaveChanges();
+```
+
+
+
+
+
 
 * Inheritance is supported but only 1 level (Example-Project: Teacher - Person)
 

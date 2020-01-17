@@ -33,6 +33,7 @@ namespace ORM_Lib.Cache
                         {
                             var cEntity = _ctx.Schema.GetByType(currentObj.GetType());
                             var fk = cEntity.PkColumn.PropInfo.GetMethod.Invoke(currentObj, new object[0]);
+                            if (fk == null || ValuesEqual(fk, 0L)) throw new InvalidOperationException("Trying to add an unmanaged object!");
                             if(!ValuesEqual(ShadowAttributes[col.Name], fk))
                             {
                                 newValues[col.Name] = fk;
