@@ -106,13 +106,23 @@ namespace ORM_Lib
             return pocos;
         }
 
-        public void SaveChanges(UpdateBatch updateBatch)
+        public void SaveUpdateChanges(UpdateBatch updateBatch)
+        {
+            SaveChanges(updateBatch);
+        }
+
+        public void SaveInsertChanges(ManyToManyInsertBatch insertBatch)
+        {
+            SaveChanges(insertBatch);
+        }
+
+        public void SaveChanges(ISqlExpression sqlExpression)
         {
             using var connection = _connection.Invoke();
             connection.Open();
             using var command = connection.CreateCommand();
-            command.CommandText = updateBatch.AsSqlString();
-            PrepareStatement(updateBatch, command);
+            command.CommandText = sqlExpression.AsSqlString();
+            PrepareStatement(sqlExpression, command);
             command.ExecuteNonQuery();
         }
 

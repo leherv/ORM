@@ -7,6 +7,8 @@ using ORM_Lib.DbSchema;
 using ORM_Lib.TypeMapper;
 using ORM_Lib.Cache;
 using ORM_Lib.Query.Update;
+using ORM_Lib.Saving;
+using ORM_Lib.Query.Insert;
 
 namespace ORM_Lib
 {
@@ -38,12 +40,24 @@ namespace ORM_Lib
         public void SaveChanges()
         {
             var updateStatements = new List<UpdateStatement>();
-            var changes = Cache.GetChanges();
-            foreach(var change in changes)
+            (List<PocoUpdateChange> updates, List<PocoInsertChange> inserts) = Cache.GetChanges();
+
+            // first we want to insert into the intermediate tables per table (tablename)
+            var manyToManyInsertStmts = new List<ManyToManyInsertStatement>();
+            var insertGroups = inserts.GroupBy(i => i.TableName);
+            foreach (var group in insertGroups)
             {
-                updateStatements.AddRange(new UpdateStatementBuilder(this, change).Build());
+                manyToManyInsertStmts.Add(new ManyToManyInsertStatementBuilder(group.Key, group.ToList()).Build());
             }
-            Database.SaveChanges(new UpdateBatch(updateStatements));
+
+            Database.SaveInsertChanges(new ManyToManyInsertBatch(manyToManyInsertStmts));
+
+            // now we update all the values
+            foreach (var update in updates)
+            {
+                updateStatements.AddRange(new UpdateStatementBuilder(this, update).Build());
+            }
+            Database.SaveUpdateChanges(new UpdateBatch(updateStatements));
         }
         
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)

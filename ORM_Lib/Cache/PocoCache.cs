@@ -37,24 +37,25 @@ namespace ORM_Lib.Cache
             }
         }
 
-        public List<PocoChange> GetChanges()
+        public (List<PocoUpdateChange>, List<PocoInsertChange>) GetChanges()
         {
             SavingChanges = true;
             PrepareCollectChanges();
-            var changes = new List<PocoChange>();
+            var (updateChanges, insertChanges) = (new List<PocoUpdateChange>(), new List<PocoInsertChange>());
             // iterate all cacheEntries
-            foreach(var (entity, dict) in _entityPocoCache)
+            foreach (var (entity, dict) in _entityPocoCache)
             {
                 foreach(var (key, cacheEntry) in dict)
                 {
                     // if there are no changes to the cachedobject we dont add it to the list of pocoChanges
-                    var newValues = cacheEntry.CalculateChange();
-                    if (newValues.Count > 0)
-                        changes.Add(new PocoChange(cacheEntry.Poco, entity, newValues, key));
+                    (PocoUpdateChange updateChange, List<PocoInsertChange> pocoInsertChanges) = cacheEntry.CalculateChange();
+                    if (updateChange.NewValues.Count > 0)
+                        updateChanges.Add(updateChange);
+                    insertChanges.AddRange(pocoInsertChanges);
                 }
             }
             SavingChanges = false;
-            return changes;
+            return (updateChanges, insertChanges);
         }
 
     }

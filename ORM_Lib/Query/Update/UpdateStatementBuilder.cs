@@ -11,11 +11,11 @@ namespace ORM_Lib.Query.Update
     internal class UpdateStatementBuilder
     {
         private DbContext _ctx;
-        private PocoChange _changes;
+        private PocoUpdateChange _changes;
         private Entity _entity;
 
         //TODO: wherefilter could be a problem passing to superclass
-        public UpdateStatementBuilder(DbContext ctx, PocoChange changes)
+        public UpdateStatementBuilder(DbContext ctx, PocoUpdateChange changes)
         {
             _ctx = ctx;
             _changes = changes;

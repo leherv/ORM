@@ -98,7 +98,8 @@ namespace ORM_Example
             var student = dbContext.Students
                 .Add(new Student("test_name3", "test_firstname3", Gender.MALE, new DateTime(2003, 3, 3)))
                 .Build()
-                .Execute();
+                .Execute()
+                .First();
 
             var course = dbContext.Courses
                 .Add(new Course(true, "best course"))
@@ -110,13 +111,13 @@ namespace ORM_Example
 
             var teacher = teachers.First();
 
-            //course.Teacher = teacher;
-            // equivalent result 
-            teacher.Courses.Add(course);
+            course.Teacher = teacher;
+            //teacher.Courses.Add(course); // equivalent result 
 
+            student.Courses.Add(course);
+            //course.Students.Add(student); // equivalent result
 
             dbContext.SaveChanges();
-
         }
 
     }

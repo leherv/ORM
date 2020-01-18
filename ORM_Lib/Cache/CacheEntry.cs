@@ -1,5 +1,6 @@
 ﻿using ORM_Lib.Attributes;
 using ORM_Lib.DbSchema;
+using ORM_Lib.Saving;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,6 +24,10 @@ namespace ORM_Lib.Cache
         }
 
 
+        // we prepare here because if we have a manytoone we have to update the entity where the manytoone sits on
+        // but if we have onetomany we have to update the entity on the other hand - so the change can not be on the entity onetomany sits on
+        // therefore we set the object on the other side and collect changes will find it then and update the correct entity
+        // also the other object is correctly set without needing to fetch from the database!
         public void PrepareForCollectChanges()
         {
             var pk = _entity.PkColumn.PropInfo.GetMethod.Invoke(Poco, new object[0]);
@@ -30,11 +35,11 @@ namespace ORM_Lib.Cache
             {
                 //get the list
                 var objects = col.PropInfo.GetMethod.Invoke(Poco, new object[0]);
-                if(objects != null)
+                if (objects != null)
                 {
                     // convert to real list
                     var objs = objects as ICollection;
-                    if(objs != null && objs.Count > 0)
+                    if (objs != null && objs.Count > 0)
                     {
                         var relation = col.Relation as OneToMany;
                         var entity = relation.MappedByEntity;
@@ -50,14 +55,14 @@ namespace ORM_Lib.Cache
                         }
                     }
                 }
-                
+
             }
         }
-       
 
 
-        public Dictionary<string, object> CalculateChange()
+        public (PocoUpdateChange, List<PocoInsertChange>) CalculateChange()
         {
+            var insertChanges = new List<PocoInsertChange>();
             Dictionary<string, object> newValues = new Dictionary<string, object>();
             foreach (var col in _entity.CombinedColumns())
             {
@@ -66,17 +71,17 @@ namespace ORM_Lib.Cache
                     if (col.IsShadowAttribute)
                     {
                         var currentObj = col.PropInfo.GetMethod.Invoke(Poco, new object[0]);
-                        if(currentObj != null)
+                        if (currentObj != null)
                         {
                             var cEntity = _ctx.Schema.GetByType(currentObj.GetType());
                             var fk = cEntity.PkColumn.PropInfo.GetMethod.Invoke(currentObj, new object[0]);
                             if (fk == null || ValuesEqual(fk, 0L)) throw new InvalidOperationException("Trying to add an unmanaged object!");
-                            if(!ValuesEqual(ShadowAttributes[col.Name], fk))
+                            if (!ValuesEqual(ShadowAttributes[col.Name], fk))
                             {
                                 newValues[col.Name] = fk;
                             }
                         }
-                        
+
                     }
                     else
                     {
@@ -88,8 +93,35 @@ namespace ORM_Lib.Cache
                         }
                     }
                 }
+                else
+                {
+                    if (col.Relation is ManyToMany relation)
+                    {
+                        var objects = col.PropInfo.GetMethod.Invoke(Poco, new object[0]);
+                        if (objects != null)
+                        {
+                            // convert to real list
+                            var objs = objects as ICollection;
+                            if (objs != null && objs.Count > 0)
+                            {
+                                var entity = relation.ToEntity;
+                                foreach (var obj in objs)
+                                {
+                                    var objPk = entity.PkColumn.PropInfo.GetMethod.Invoke(obj, new object[0]);
+                                    if (objPk == null || ValuesEqual(0L, objPk)) throw new InvalidOperationException("Trying to add an unmanaged object!");
+
+                                    insertChanges.Add(new PocoInsertChange(
+                                       relation.TableName,
+                                       (relation.ForeignKeyNear, _entity.PkColumn.PropInfo.GetMethod.Invoke(Poco, new object[0])),
+                                       (relation.ForeignKeyFar, objPk)
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            return newValues;
+            return (new PocoUpdateChange(newValues, _entity, _entity.PkColumn.PropInfo.GetMethod.Invoke(Poco, new object[0])), insertChanges);
         }
 
 
