@@ -198,23 +198,18 @@ For single objects:
 
 ##### Simple Select
 Select can be executed on the DbSets to fetch entities corresponding to the type of the DbSet.
-You can **query all columns** like this:
+
 ```
-    var persons = dbContext.Persons.Select(new string[] { }).Build().Execute();
     var persons = dbContext.Persons.Select(null).Build().Execute();
 ```
 
-One can also execute **partial selects** with only some columns which then have to be passed with the column-name as string.
-```
-    var partialPersons = dbContext.Persons.Select(new[] { "name", "firstname" }).Build().Execute();
-```
 
 ##### Select with Where-Filter
 You can also filter entities to select at database-level like this:
 
 ```
     var filteredPerson = dbContext.Persons
-        .Select(null)
+        .Select()
         .Where(BinaryExpression.Eq(new ColumnExpression("firstname"), new ValueExpression("test_firstname")))
         .Build()
         .Execute();
@@ -226,7 +221,7 @@ You can also filter entities to select at database-level like this:
 You can also use two ValueExpressions (although you could just drop the whole Where) like this:
 ```
     var filteredPerson = dbContext.Persons
-        .Select(null)
+        .Select()
         .Where(BinaryExpression.Eq(new ValueExpression(1), new ValueExpression(1)))
         .Build()
         .Execute();

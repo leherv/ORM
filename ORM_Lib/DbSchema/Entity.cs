@@ -55,5 +55,6 @@ namespace ORM_Lib.DbSchema
             return Columns.Concat(SuperEntityColumns());
         }
 
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ORM_Lib.Cache;
 using ORM_Lib.DbSchema;
+using ORM_Lib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -56,7 +57,7 @@ namespace ORM_Lib.Deserialization
                     if (col.IsShadowAttribute)
                     {
                         // foreign key / ManyToOne (exists in db and in object, but is a key - can not be set directly and needs to be lazily loaded)
-                        cacheEntry.ShadowAttributes.Add(col.Name, reader[col.Name]);
+                        cacheEntry.ShadowAttributes[col.Name] = reader[col.Name];
                     }
                     else
                     {

@@ -17,7 +17,7 @@ namespace ORM_Lib
             _ctx = ctx;
         }
 
-        public abstract SelectQueryBuilder<T> Select(string[] columns);
+        public abstract SelectQueryBuilder<T> Select();
         public abstract InsertStatementBuilder<T> Add(IEnumerable<T> poco);
 
         public abstract InsertStatementBuilder<T> Add(T poco);

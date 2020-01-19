@@ -10,11 +10,13 @@ namespace ORM_Lib.Query.Insert
     {
         private string _tableName;
         private List<PocoInsertChange> _insertChanges;
+        private (string,string) _colNames;
         
         public ManyToManyInsertStatementBuilder(string tableName, List<PocoInsertChange> insertChanges)
         {
             _tableName = tableName;
             _insertChanges = insertChanges;
+            _colNames = BuildColumnNames();
         }
 
         private (string, string) BuildColumnNames()
@@ -26,16 +28,25 @@ namespace ORM_Lib.Query.Insert
         // probably will have to be Hashset<long, long> so comparing will work
         private HashSet<(object, object)> BuildValues()
         {
-            return _insertChanges
-                .Select(i => ((i.colNameValue.Item2, i.ColNameValue2.Item2)))
-                .ToHashSet();
+            var set = new HashSet<(object, object)>();
+            foreach(var change in _insertChanges)
+            {
+                if(change.colNameValue.Item1.Equals(_colNames.Item1))
+                {
+                    set.Add((change.colNameValue.Item2, change.ColNameValue2.Item2));
+                } else
+                {
+                    set.Add((change.ColNameValue2.Item2, change.colNameValue.Item2));
+                }
+            }
+            return set;
         }
 
         public ManyToManyInsertStatement Build()
         {
             return new ManyToManyInsertStatement(
                 _tableName,
-                BuildColumnNames(),
+                _colNames,
                 BuildValues()
             );
         }

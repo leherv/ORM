@@ -107,8 +107,29 @@ namespace ORM_Lib.Cache
                                 var entity = relation.ToEntity;
                                 foreach (var obj in objs)
                                 {
+                                    // check if managed
                                     var objPk = entity.PkColumn.PropInfo.GetMethod.Invoke(obj, new object[0]);
                                     if (objPk == null || ValuesEqual(0L, objPk)) throw new InvalidOperationException("Trying to add an unmanaged object!");
+
+                                    // set the other side too! (simulates a refetch with new key from database for the other side)
+                                    var otherToSet = entity.Columns
+                                        .Select(c => c.PropInfo)
+                                        .Where(arg => arg.GetMethod.ReturnType.GenericTypeArguments.Length > 0 && arg.GetMethod.ReturnType.GenericTypeArguments[0] == Poco.GetType()).FirstOrDefault();
+
+                                    if (otherToSet != null)
+                                    {
+                                        var otherSideCurrent = otherToSet.GetMethod.Invoke(obj, new object[0]);
+                                        // other collection was not set/loaded yet
+                                        if (otherSideCurrent == null)
+                                        {
+                                            var list = ListBuilder.BuildList(Poco.GetType(), Poco);
+                                            otherToSet.SetMethod.Invoke(obj, new object[] { list });
+                                        } else
+                                        {
+                                            var currentObjs = otherSideCurrent as IList;
+                                            currentObjs.Add(Poco);
+                                        }
+                                    }
 
                                     insertChanges.Add(new PocoInsertChange(
                                        relation.TableName,

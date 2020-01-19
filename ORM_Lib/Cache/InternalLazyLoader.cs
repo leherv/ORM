@@ -78,7 +78,7 @@ namespace ORM_Lib.Cache
 
         private ICollection<T> LoadManyToMany<T>(object poco, Column column, ref ICollection<T> loadTo, ManyToMany relation)
         {
-            var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, null, relation.ToPocoType)
+            var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, relation.ToPocoType)
                 .Join(new Join(
                     relation.ToEntity.Alias, relation.ToEntity.PkColumn.Name, relation.TableName, "relationNeedsAlias", relation.ForeignKeyFar
                  ))
@@ -91,7 +91,7 @@ namespace ORM_Lib.Cache
         private ICollection<T> LoadOneToMany<T>(object poco, Column column, ref ICollection<T> loadTo, OneToMany relation)
         {
             var targetEntity = relation.MappedByEntity;
-            var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, null, relation.MappedByPocoType);
+            var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, relation.MappedByPocoType);
             var whereColumn = targetEntity.Columns.Where(c => c.PropInfo == relation.MappedByProperty).First();
             // primary key of the current object! 
             var whereValue = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[0]);
@@ -109,7 +109,7 @@ namespace ORM_Lib.Cache
         {
             var cache = _ctx.Cache;
             var targetEntity = relation.ToEntity;
-            var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, null, relation.ToPocoType);
+            var selectQueryBuilder = new SelectQueryBuilder<T>(_ctx, relation.ToPocoType);
 
             var pk = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[0]);
             // load shadowEntity from cache because it holds the foreign key

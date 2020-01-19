@@ -23,9 +23,9 @@ namespace ORM_Lib
             return Add(new[] { poco });
         }
 
-        public override SelectQueryBuilder<T> Select(string[] columns)
+        public override SelectQueryBuilder<T> Select()
         {
-            return new SelectQueryBuilder<T>(_ctx, columns, typeof(T));
+            return new SelectQueryBuilder<T>(_ctx, typeof(T));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ORM_Lib.Cache;
 using ORM_Lib.Deserialization;
 using ORM_Lib.Query;
+using ORM_Lib.Query.Create;
 using ORM_Lib.Query.Insert;
 using ORM_Lib.Query.Select;
 using ORM_Lib.Query.Update;
@@ -23,107 +24,134 @@ namespace ORM_Lib
             _ctx = ctx;
         }
 
-        public int ExecuteDDL(String ddlString)
+        public IEnumerable<T> ExecuteQuery<T>(SelectQuery<T> query)
         {
-            var rowsAffected = -1;
             using var connection = _connection.Invoke();
             connection.Open();
+            using IDbTransaction transaction = connection.BeginTransaction();
             using var command = connection.CreateCommand();
-            command.CommandText = ddlString;
+            command.CommandText = query.AsSqlString();
+            command.Transaction = transaction;
+            PrepareStatement(query, command);
             try
             {
-                rowsAffected = command.ExecuteNonQuery();
-                //transaction.Commit();
-                Console.WriteLine("Transaction successful");
+                var reader = command.ExecuteReader();
+                var objectReader = new ObjectReader<T>(_ctx, reader, query._entityExecutedOn, query._combinedQueryColumns);
+                var result = objectReader.Serialize();
+                reader.Close();
+                transaction.Commit();
+                return result;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
                 Console.WriteLine("  Message: {0}", ex.Message);
-                //transaction.Rollback();
+                transaction.Rollback();
+                throw ex;
             }
-            connection.Close();
-            return rowsAffected;
-        }
-
-        public IEnumerable<T> ExecuteQuery<T>(SelectQuery<T> query)
-        {
-            using var connection = _connection.Invoke();
-            connection.Open();
-            using var command = connection.CreateCommand();
-            command.CommandText = query.AsSqlString();
-            PrepareStatement(query, command);
-            var objectReader = new ObjectReader<T>(_ctx, command.ExecuteReader(), query._entityExecutedOn, query._combinedQueryColumns);
-            var result = objectReader.Serialize();
-            connection.Close();
-            return result;
         }
 
         public List<T> ExecuteInsert<T>(InsertStatement<T> statement)
         {
             using var connection = _connection.Invoke();
             connection.Open();
+            using IDbTransaction transaction = connection.BeginTransaction();
             using var command = connection.CreateCommand();
             command.CommandText = statement.AsSqlString();
+            command.Transaction = transaction;
             PrepareStatement(statement, command);
-            using var reader = command.ExecuteReader();
-
-            // now we set the pks the db returned on our pocos and add them to the cache
-            var entity = statement._entityExecutedOn;
-            var pkCol = entity.PkColumn;
-            var pocos = statement._pocos;
-            var cache = _ctx.Cache;
-
-            var enumerator = pocos.GetEnumerator();
-            while (reader.Read() && enumerator.MoveNext())
+          
+            try
             {
-                var poco = enumerator.Current;
-                var pk = reader[pkCol.Name];
-                pkCol.PropInfo.SetMethod.Invoke(poco, new[] { pk });
-                var cacheEntry = cache.GetOrInsert(entity, (long)pk, poco);
+                var reader = command.ExecuteReader();
 
-                // now we fill originalPoco
-                foreach (var col in entity.CombinedColumns())
+                var entity = statement._entityExecutedOn;
+                var pkCol = entity.PkColumn;
+                var pocos = statement._pocos;
+                var cache = _ctx.Cache;
+
+                var enumerator = pocos.GetEnumerator();
+                // now we set the pks the db returned on our pocos and add them to the cache
+                while (reader.Read() && enumerator.MoveNext())
                 {
-                    if (col.IsDbColumn)
+                    var poco = enumerator.Current;
+                    var pk = reader[pkCol.Name];
+                    pkCol.PropInfo.SetMethod.Invoke(poco, new[] { pk });
+                    var cacheEntry = cache.GetOrInsert(entity, (long)pk, poco);
+
+                    // now we fill originalPoco
+                    foreach (var col in entity.CombinedColumns())
                     {
-                        if (col.IsShadowAttribute)
+                        if (col.IsDbColumn)
                         {
-                            // TODO: maybe no entry?
-                            cacheEntry.ShadowAttributes[col.Name] = null;
-                        }
-                        else
-                        {
-                            var value = col.PropInfo.GetMethod.Invoke(poco, new object[0]);
-                            // fill the originalEntries with values for changeTracking later
-                            if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
+                            if (col.IsShadowAttribute)
+                            {
+                                // TODO: maybe no entry?
+                                cacheEntry.ShadowAttributes[col.Name] = null;
+                            }
+                            else
+                            {
+                                var value = col.PropInfo.GetMethod.Invoke(poco, new object[0]);
+                                // fill the originalEntries with values for changeTracking later
+                                if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
+                            }
                         }
                     }
+                    LazyLoadInjector.InjectLazyLoader<T>(poco, _ctx, statement._entityExecutedOn);
                 }
-                LazyLoadInjector.InjectLazyLoader<T>(poco, _ctx, statement._entityExecutedOn);
+                reader.Close();
+                transaction.Commit();
+                return pocos;
             }
-            connection.Close();
-            return pocos;
+            catch (Exception ex)
+            {
+                Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                Console.WriteLine("  Message: {0}", ex.Message);
+                transaction.Rollback();
+                throw ex;
+            }
+        }
+
+        public int ExecuteDDL(DdlStatement ddlStatement)
+        {
+            return ExecuteNonQuery(ddlStatement);
         }
 
         public void SaveUpdateChanges(UpdateBatch updateBatch)
         {
-            SaveChanges(updateBatch);
+            ExecuteNonQuery(updateBatch);
         }
 
         public void SaveInsertChanges(ManyToManyInsertBatch insertBatch)
         {
-            SaveChanges(insertBatch);
+            ExecuteNonQuery(insertBatch);
         }
 
-        public void SaveChanges(ISqlExpression sqlExpression)
+        private int ExecuteNonQuery(ISqlExpression sqlExpression)
         {
+            var rowsAffected = -1;
             using var connection = _connection.Invoke();
             connection.Open();
+            using IDbTransaction transaction = connection.BeginTransaction();
             using var command = connection.CreateCommand();
             command.CommandText = sqlExpression.AsSqlString();
             PrepareStatement(sqlExpression, command);
-            command.ExecuteNonQuery();
+            command.Transaction = transaction;
+            try
+            {
+                rowsAffected = command.ExecuteNonQuery();
+                transaction.Commit();
+                Console.WriteLine("Transaction successful");
+                return rowsAffected;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Commit Exception Type: {0}", ex.GetType());
+                Console.WriteLine("  Message: {0}", ex.Message);
+                // most rollback per default but we do not want to rely on that
+                transaction.Rollback();
+                throw ex;
+            }
         }
 
 

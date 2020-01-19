@@ -9,6 +9,8 @@ using ORM_Lib.Cache;
 using ORM_Lib.Query.Update;
 using ORM_Lib.Saving;
 using ORM_Lib.Query.Insert;
+using ORM_Lib.Query.Create;
+using ORM_Lib.Ddl;
 
 namespace ORM_Lib
 {
@@ -29,12 +31,10 @@ namespace ORM_Lib
             BuildDbSets(propertyInfos, types);
             Schema = BuildSchema(types, Configuration.TypeMapper);
             Database = new Database(Configuration.Connection, this);
-
-            if(Configuration.CreateDB)
-            {
-                var rows = Database.ExecuteDDL(Ddl.SchemaSqlBuilder.BuildDdl(Schema, Configuration.TypeMapper));
-            }
             Cache = new PocoCache(this);
+
+            if (Configuration.CreateDB)
+                Database.ExecuteDDL(new DdlStatement(SchemaSqlBuilder.BuildDdl(Schema, Configuration.TypeMapper)));
         }
 
         public void SaveChanges()
