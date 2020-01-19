@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ORM_Lib.Query
 {
-    public class WithStatement : ISqlExpression
+    class WithStatement : ISqlExpression
     {
 
         public string Alias { get; }

@@ -1,9 +1,7 @@
 ﻿using ORM_Lib.DbSchema;
 using ORM_Lib.Query.Where;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace ORM_Lib.Query
 {

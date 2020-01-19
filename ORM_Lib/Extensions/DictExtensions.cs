@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ORM_Lib.Extensions
 {
-    public static class DictExtensions
+    internal static class DictExtensions
     {
         public static TValue GetOrInsert<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue toInsert)
         {

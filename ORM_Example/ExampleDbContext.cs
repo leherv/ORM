@@ -14,7 +14,7 @@ namespace ORM_Example
         protected override ORMConfiguration Configuration => new ORMConfiguration(
             new PostgresTypeMapper(),
             () => new NpgsqlConnection(ConnectionStringBuilder.connectionString()),
-            false
+            true
         );
 
         public DbSet<Person> Persons { get; set; }

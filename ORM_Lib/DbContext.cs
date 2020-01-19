@@ -42,22 +42,26 @@ namespace ORM_Lib
             var updateStatements = new List<UpdateStatement>();
             (List<PocoUpdateChange> updates, List<PocoInsertChange> inserts) = Cache.GetChanges();
 
-            // first we want to insert into the intermediate tables per table (tablename)
-            var manyToManyInsertStmts = new List<ManyToManyInsertStatement>();
-            var insertGroups = inserts.GroupBy(i => i.TableName);
-            foreach (var group in insertGroups)
+            if(inserts.Count > 0)
             {
-                manyToManyInsertStmts.Add(new ManyToManyInsertStatementBuilder(group.Key, group.ToList()).Build());
+                // first we want to insert into the intermediate tables per table (tablename)
+                var manyToManyInsertStmts = new List<ManyToManyInsertStatement>();
+                var insertGroups = inserts.GroupBy(i => i.TableName);
+                foreach (var group in insertGroups)
+                {
+                    manyToManyInsertStmts.Add(new ManyToManyInsertStatementBuilder(group.Key, group.ToList()).Build());
+                }
+                Database.SaveInsertChanges(new ManyToManyInsertBatch(manyToManyInsertStmts));
             }
-
-            Database.SaveInsertChanges(new ManyToManyInsertBatch(manyToManyInsertStmts));
-
-            // now we update all the values
-            foreach (var update in updates)
+            if(updates.Count > 0)
             {
-                updateStatements.AddRange(new UpdateStatementBuilder(this, update).Build());
+                // now we update all the values
+                foreach (var update in updates)
+                {
+                    updateStatements.AddRange(new UpdateStatementBuilder(this, update).Build());
+                }
+                Database.SaveUpdateChanges(new UpdateBatch(updateStatements));
             }
-            Database.SaveUpdateChanges(new UpdateBatch(updateStatements));
         }
         
         private void BuildDbSets(IEnumerable<PropertyInfo> propertyInfos, IEnumerable<Type> types)

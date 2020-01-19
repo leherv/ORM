@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ORM_Lib.Query.Update
 {
-    class UpdateBatch : ISqlExpression
+    internal class UpdateBatch : ISqlExpression
     {
         private List<UpdateStatement> _updateStatements;
 
@@ -20,7 +20,7 @@ namespace ORM_Lib.Query.Update
         {
             return _updateStatements
               .Select(up => $"{up.AsSqlString()}")
-              .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1}; {c2}");
+              .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1} {c2}");
         }
 
         public IEnumerable<NamedParameter> GetNamedParams()

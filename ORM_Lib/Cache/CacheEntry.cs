@@ -107,6 +107,7 @@ namespace ORM_Lib.Cache
                                 var entity = relation.ToEntity;
                                 foreach (var obj in objs)
                                 {
+                                    // PROBLEM we add manytomany objs everytime with insertstatements!
                                     // check if managed
                                     var objPk = entity.PkColumn.PropInfo.GetMethod.Invoke(obj, new object[0]);
                                     if (objPk == null || ValuesEqual(0L, objPk)) throw new InvalidOperationException("Trying to add an unmanaged object!");
@@ -119,15 +120,13 @@ namespace ORM_Lib.Cache
                                     if (otherToSet != null)
                                     {
                                         var otherSideCurrent = otherToSet.GetMethod.Invoke(obj, new object[0]);
-                                        // other collection was not set/loaded yet
-                                        if (otherSideCurrent == null)
+                                        // other collection was not set/loaded yet so we should not set it - will be loaded next time anyway
+                                        if (otherSideCurrent != null)
                                         {
-                                            var list = ListBuilder.BuildList(Poco.GetType(), Poco);
-                                            otherToSet.SetMethod.Invoke(obj, new object[] { list });
-                                        } else
-                                        {
+                                            // we now want to add the object to the collection if it not already exists
                                             var currentObjs = otherSideCurrent as IList;
-                                            currentObjs.Add(Poco);
+                                            if (!currentObjs.Contains(Poco))
+                                                currentObjs.Add(Poco);
                                         }
                                     }
 

@@ -5,7 +5,7 @@ using System.Data;
 
 namespace ORM_Lib.TypeMapper
 {
-    class PreparedStatementTypeMapper
+    internal class PreparedStatementTypeMapper
     {
         private static readonly Dictionary<Type, DbType> _map = new Dictionary<Type, DbType>
         {

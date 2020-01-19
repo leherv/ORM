@@ -5,9 +5,8 @@ using System.Text;
 
 namespace ORM_Lib.TypeMapper
 {
-    class OrmDbType
+    internal class OrmDbType
     {
-
         public DbType PStmtDbType { get; }
         public string DdlDbType { get; }
 

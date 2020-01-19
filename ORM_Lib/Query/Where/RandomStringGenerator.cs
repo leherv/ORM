@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ORM_Lib.Query.Where
 {
-    internal static class RandomStringGenerator
+    static class RandomStringGenerator
     {
         private static Random random = new Random((int)DateTime.Now.Ticks);
         public static string RandomString(int size)

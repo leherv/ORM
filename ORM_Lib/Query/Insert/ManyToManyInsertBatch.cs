@@ -20,7 +20,7 @@ namespace ORM_Lib.Query.Insert
         {
             return _insertStatements
               .Select(up => $"{up.AsSqlString()}")
-              .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1}; {c2}");
+              .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1} {c2}");
         }
 
         public IEnumerable<NamedParameter> GetNamedParams()

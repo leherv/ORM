@@ -14,6 +14,7 @@ namespace ORM_Example
             ShowCase_Insert(dbContext);
             ShowCase_Query_Simple(dbContext);
             ShowCase_Query_Lazy(dbContext);
+            ShowCase_Change_Multiple(dbContext);
         }
 
         private static void ShowCase_DDL()
@@ -125,6 +126,26 @@ namespace ORM_Example
             var courses = dbContext.Courses.Select().Build().Execute();
             var course = courses.First();
             var students = course.Students;
+        }
+
+
+        private static void ShowCase_Change_Multiple(ExampleDbContext dbContext)
+        {
+            var ps = dbContext.Persons
+                .Select()
+                .Build()
+                .Execute()
+                .ToList();
+
+            ps.ForEach(p => p.FirstName = "changed");
+
+            dbContext.SaveChanges();
+
+            var ps2 = dbContext.Persons
+                .Select()
+                .Build()
+                .Execute()
+                .ToList();
         }
     }
 }

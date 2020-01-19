@@ -1,9 +1,9 @@
 # ORM
 
-This is a university project. Do not use in production! I mean it. Don`t.
-This project is a lazy-loading Object-Relational-Mapper that uses Code-First. Inheritance is handled with table-per-type.
+**This is a university project. Do not use in production! I mean it. Don`t.**
+The goal is a lazy-loading Object-Relational-Mapper that uses Code-First. Inheritance is handled with table-per-type.
 Object Identity is ensured via Cache.
-In the Usage description below I will always relate to the example project ORM_Example that can be found in this repository._
+In the Usage description below I will always relate to the example project ORM_Example that can be found in this repository.
 
 ## Usage
 
@@ -108,9 +108,9 @@ public class Person
 * Every POCO has to have a **Primary Key**
   * a property with the attribute **[Pk]** is found
   * a property named "id" (case insensitive) is found
-  * if none of the above are the case an exception is thrown 
+  * if none of the above are the case, an exception is thrown 
 * If you want to exclude properties/fields you can use the **[Ignore]** property
-* Every POCO **HAS to have a default constructor**.
+* Every POCO **HAS to have a public default constructor**
 * Every column that should be passivated **HAS to have a public getter and setter**
 
 
@@ -200,7 +200,7 @@ For single objects:
 Select can be executed on the DbSets to fetch entities corresponding to the type of the DbSet.
 
 ```
-    var persons = dbContext.Persons.Select(null).Build().Execute();
+    var persons = dbContext.Persons.Select().Build().Execute();
 ```
 
 
@@ -256,8 +256,8 @@ Add returns the inserted objects with the Pk from the Database. So you can conti
 ```
     var teachers = dbContext.Teachers
         .Add(new[] {
-        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
-        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+            new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+            new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
         })
         .Build()
         .Execute();
@@ -289,8 +289,8 @@ Here is an example:
 
     var teacher = dbContext.Teachers
         .Add(new[] {
-        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
-        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+            new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+            new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
         })
         .Build()
         .Execute()
@@ -314,8 +314,8 @@ This makes the same change in the database as ManyToOne did.
 
     var teacher = dbContext.Teachers
         .Add(new[] {
-        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
-        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+            new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+            new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
         })
         .Build()
         .Execute()
@@ -328,12 +328,12 @@ This makes the same change in the database as ManyToOne did.
 
 #### Saving
 
-Saving changes is very straight forward. Just call the SaveChanges method on the Database-Context.
+Saving changes is very straight forward. Just call the SaveChanges method on the Database-Context. (As already seen in the examples)
 ```
     var teachers = dbContext.Teachers
         .Add(new[] {
-        new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
-        new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
+            new Teacher("test_name", "test_firstname", Gender.MALE, new DateTime(2000,1,1), 2500),
+            new Teacher("test_name2", "test_firstname2", Gender.FEMALE, new DateTime(2002,2,2), 2600)
         })
         .Build()
         .Execute();
@@ -347,12 +347,12 @@ Saving changes is very straight forward. Just call the SaveChanges method on the
 
 * Caution when changing you need to save before re-fetching the changed object!!
 ```
-    var persons = dbContext.Persons.Select(null).Build().Execute();
+    var persons = dbContext.Persons.Select().Build().Execute();
     // firstName from database = "john"
     var person = persons.First();
     person.FirstName = "Tom";
 
-    var persons2 = dbContext.Persons.Select(null).Build().Execute();
+    var persons2 = dbContext.Persons.Select().Build().Execute();
     // firstName = "john" as the change was not saved!
     var firstName = person.FirstName;
 ```

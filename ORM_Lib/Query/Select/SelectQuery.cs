@@ -86,10 +86,9 @@ namespace ORM_Lib.Query.Select
                 .Aggregate("", (c1, c2) => c1 == "" ? $"{c2}" : $"{c1}, {c2}");
         }
 
-
         void ISqlExpression.SetContextInformation(Entity entity)
         {
-
+            
         }
     }
 }
