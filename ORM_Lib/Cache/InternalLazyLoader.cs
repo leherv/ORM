@@ -85,7 +85,25 @@ namespace ORM_Lib.Cache
                 .Join(new Join(
                     "relatioNneedsAlias", relation.ForeignKeyNear, _entity.Name, _entity.Alias, _entity.PkColumn.Name
                 ));
-            return selectQueryBuilder.Build().Execute().ToList();
+
+            ICollection<T> resultList = selectQueryBuilder.Build().Execute().ToList();
+            // get the current cacheEntry for THIS object
+            var currentPk = _entity.PkColumn.PropInfo.GetMethod.Invoke(poco, new object[0]);
+            var cacheEntry = _ctx.Cache.GetOrInsert(_entity, (long)currentPk, poco);
+            cacheEntry.ManyToManyKeys = new List<object>();
+            if (resultList != null && resultList.Count > 0)
+            {
+                // get primary keys of the objects just loaded and set them in the CacheEntry so we can track them!
+                var toEntity = relation.ToEntity;
+
+                foreach (var obj in resultList)
+                {
+                    var objPk = toEntity.PkColumn.PropInfo.GetMethod.Invoke(obj, new object[0]);
+                    if (!cacheEntry.ManyToManyKeys.Contains(objPk))
+                        cacheEntry.ManyToManyKeys.Add(objPk);
+                }
+            }
+            return resultList;
         }
 
         private ICollection<T> LoadOneToMany<T>(object poco, Column column, ref ICollection<T> loadTo, OneToMany relation)
@@ -128,6 +146,6 @@ namespace ORM_Lib.Cache
             return selectQueryBuilder.Build().Execute().FirstOrDefault();
         }
 
-      
+
     }
 }

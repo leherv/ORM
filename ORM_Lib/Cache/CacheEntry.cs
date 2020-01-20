@@ -15,12 +15,14 @@ namespace ORM_Lib.Cache
         public object Poco { get; }
         public Dictionary<string, object> OriginalPoco = new Dictionary<string, object>();
         public Dictionary<string, object> ShadowAttributes = new Dictionary<string, object>();
+        public List<object> ManyToManyKeys = new List<object>();
 
         public CacheEntry(object poco, Entity entity, DbContext ctx)
         {
             Poco = poco;
             _entity = entity;
             _ctx = ctx;
+            entity.Columns.Where(col => col.Relation.GetType() == typeof(ManyToMany));
         }
 
 
@@ -112,29 +114,35 @@ namespace ORM_Lib.Cache
                                     var objPk = entity.PkColumn.PropInfo.GetMethod.Invoke(obj, new object[0]);
                                     if (objPk == null || ValuesEqual(0L, objPk)) throw new InvalidOperationException("Trying to add an unmanaged object!");
 
-                                    // set the other side too! (simulates a refetch with new key from database for the other side)
-                                    var otherToSet = entity.Columns
-                                        .Select(c => c.PropInfo)
-                                        .Where(arg => arg.GetMethod.ReturnType.GenericTypeArguments.Length > 0 && arg.GetMethod.ReturnType.GenericTypeArguments[0] == Poco.GetType()).FirstOrDefault();
-
-                                    if (otherToSet != null)
+                                    // we only continue if it doesnt exist yet in db
+                                    if(!ManyToManyKeys.Contains(objPk))
                                     {
-                                        var otherSideCurrent = otherToSet.GetMethod.Invoke(obj, new object[0]);
-                                        // other collection was not set/loaded yet so we should not set it - will be loaded next time anyway
-                                        if (otherSideCurrent != null)
-                                        {
-                                            // we now want to add the object to the collection if it not already exists
-                                            var currentObjs = otherSideCurrent as IList;
-                                            if (!currentObjs.Contains(Poco))
-                                                currentObjs.Add(Poco);
-                                        }
-                                    }
+                                        // set the other side too! (simulates a refetch with new key from database for the other side)
+                                        var otherToSet = entity.Columns
+                                            .Select(c => c.PropInfo)
+                                            .Where(arg => arg.GetMethod.ReturnType.GenericTypeArguments.Length > 0 && arg.GetMethod.ReturnType.GenericTypeArguments[0] == Poco.GetType()).FirstOrDefault();
 
-                                    insertChanges.Add(new PocoInsertChange(
-                                       relation.TableName,
-                                       (relation.ForeignKeyNear, _entity.PkColumn.PropInfo.GetMethod.Invoke(Poco, new object[0])),
-                                       (relation.ForeignKeyFar, objPk)
-                                    ));
+                                        if (otherToSet != null)
+                                        {
+                                            var otherSideCurrent = otherToSet.GetMethod.Invoke(obj, new object[0]);
+                                            // other collection was not set/loaded yet so we should not set it - will be loaded next time anyway
+                                            if (otherSideCurrent != null)
+                                            {
+                                                // we now want to add the object to the collection if it not already exists
+                                                var currentObjs = otherSideCurrent as IList;
+                                                if (!currentObjs.Contains(Poco))
+                                                    currentObjs.Add(Poco);
+                                            }
+                                        }
+
+                                        insertChanges.Add(new PocoInsertChange(
+                                           relation.TableName,
+                                           (relation.ForeignKeyNear, _entity.PkColumn.PropInfo.GetMethod.Invoke(Poco, new object[0])),
+                                           (relation.ForeignKeyFar, objPk)
+                                        ));
+                                        // now we add it so we do not write to database again
+                                        ManyToManyKeys.Add(objPk);
+                                    }
                                 }
                             }
                         }

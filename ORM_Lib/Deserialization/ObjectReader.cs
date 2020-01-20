@@ -1,4 +1,5 @@
-﻿using ORM_Lib.Cache;
+﻿using ORM_Lib.Attributes;
+using ORM_Lib.Cache;
 using ORM_Lib.DbSchema;
 using ORM_Lib.Extensions;
 using System;
@@ -71,6 +72,12 @@ namespace ORM_Lib.Deserialization
                         if (!cacheEntry.OriginalPoco.ContainsKey(col.Name)) cacheEntry.OriginalPoco.Add(col.Name, value);
                         // fill the object from the cache with values
                         col.PropInfo.GetSetMethod(true).Invoke(cacheEntry.Poco, new[] { value });
+                    }
+                } else
+                {
+                    if(col.Relation is ManyToMany relation)
+                    {
+                        
                     }
                 } 
             }
