@@ -1,7 +1,3 @@
-using System.Buffers.Text;
-using System.Data;
-using System.Data.SqlClient;
-using System.Runtime.CompilerServices;
 using Npgsql;
 using ORM_Lib;
 using ORM_Lib.TypeMapper;
@@ -22,7 +18,6 @@ namespace ORM_Example
         public DbSet<Class> Classes { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Student> Students { get; set; }
-
 
     }
 }
